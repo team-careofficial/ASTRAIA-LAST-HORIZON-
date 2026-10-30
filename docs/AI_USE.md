@@ -19,3 +19,7 @@
 TEAM: describe in your own words what each member decided, reviewed, ran and tested
 (idea and design decisions, checking each NASA value against the live page, running the tests,
 usability test, classroom pilot). Do not submit this file with this paragraph unfilled.
+
+## Background images in the game (public/images/scenes)
+Tool: ChatGPT image generation. Purpose: photographic backdrops for menu, destination, design, closure and launch screens (cropped, resized and darkened; one mirrored).
+They are AI-generated concept art and are labelled as such. Prompts: presentation/CHATGPT_*.txt. Any numbers visible inside these images are placeholders, blurred or covered in the game, and are not game data.
