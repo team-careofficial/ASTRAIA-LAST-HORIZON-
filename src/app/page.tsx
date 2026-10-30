@@ -15,6 +15,7 @@ import { Destination, Design, Launch } from "@/components/game/Design";
 import Closure from "@/components/game/Closure";
 import Greenhouse from "@/components/game/Greenhouse";
 import Classroom from "@/components/game/Classroom";
+import TouchControls from "@/components/game/TouchControls";
 import Backdrop, { SCENE_FOR } from "@/components/game/Backdrop";
 import { Report } from "@/components/game/Report";
 import { Archive, Science, SettingsPage, Modes, Briefing } from "@/components/game/Pages";
@@ -30,6 +31,7 @@ export default function Page() {
       {screen === "boot" && <Boot />}{screen === "menu" && <Menu />}{screen === "archive" && <Archive />}{screen === "science" && <Science />}
       {screen === "settings" && <SettingsPage />}{screen === "modes" && <Modes />}{screen === "closure" && <Closure />}{screen === "greenhouse" && <Greenhouse />}{screen === "classroom" && <Classroom initialCode={joinCode} />}{screen === "manual" && <Manual />}<GuideHost />{screen === "destination" && <Destination />}{screen === "design" && <Design />}{screen === "launch" && <Launch />}{screen === "report" && <Report />}{screen === "rover" && <RoverHud />}{screen === "flight" && <FlightHud />}{(screen === "rover" || screen === "flight") && paused && <ModePause />}{screen === "briefing" && <Briefing />}
       {screen === "play" && <Hud />}{screen === "play" && paused && <Pause />}{screen === "result" && <Result />}
+      <TouchControls />{(screen === "play" || screen === "rover" || screen === "flight") && <div className="rotate-hint" aria-hidden><span>⟳</span><p>Turn your phone sideways to play</p></div>}
     </main>
   );
 }

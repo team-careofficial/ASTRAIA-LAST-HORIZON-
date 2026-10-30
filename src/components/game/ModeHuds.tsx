@@ -45,7 +45,7 @@ export function RoverHud() {
         </div>
         {e.hazard && <div className="fade-in gp !border-[#e8a45a] px-4 py-1 font-data text-[11px] tracking-[0.2em] text-[#e8a45a]">⚠ {e.hazard}</div>}
       </div>
-      <div className="hud-in absolute left-4 top-4 font-data text-[10.5px] tracking-[0.2em] text-white/55"><p className="text-white/80">ROVER EXPEDITION · {moon ? "MOON" : "MARS"}</p><p>LOCAL TIME {fmt(e.hour)} · SCIENCE {e.science}</p></div>
+      <div className="hud-in hud-hint absolute left-4 top-4 font-data text-[10.5px] tracking-[0.2em] text-white/55"><p className="text-white/80">ROVER EXPEDITION · {moon ? "MOON" : "MARS"}</p><p>LOCAL TIME {fmt(e.hour)} · SCIENCE {e.science}</p></div>
       {e.phase === "deploy" && <div className="fade-in absolute inset-x-0 top-1/4 text-center font-display text-lg tracking-[0.4em] text-white/85">DEPLOYING ROVER</div>}
       {/* RIGHT: environment, collapsed to a strip */}
       <div className="hud-in pointer-events-auto absolute right-4 top-14 w-56">
@@ -61,7 +61,7 @@ export function RoverHud() {
         {e.toast && <div key={e.toast} className="gp toast-in absolute bottom-0 left-1/2 -translate-x-1/2 w-max max-w-md px-4 py-2 text-center text-[14px]" >{e.toast}</div>}
       </div>
       {/* BOTTOM: battery / power / comms / speed */}
-      <div className="hud-in absolute inset-x-4 bottom-4 flex items-end justify-between gap-4">
+      <div className="hud-in hud-bottom hud-bottom-rover absolute inset-x-4 bottom-4 flex items-end justify-between gap-4">
         <div className="gp flex items-stretch divide-x divide-white/10">
           <div className="w-28 p-3"><Lbl>SPEED</Lbl><p className="font-data text-3xl leading-none">{e.speed.toFixed(0)}<span className="ml-1 text-[10px] text-white/50">KM/H</span></p><p className="mt-1 truncate font-data text-[9.5px] tracking-widest text-white/50">{e.surf}</p></div>
           <div className="w-40 p-3"><div className="flex justify-between"><Lbl>BATTERY</Lbl><span className={`font-data text-[12px] ${lowB ? "pulse-warn text-[#e5533a]" : ""}`}>{lowB ? "⚠ " : ""}{bat.toFixed(0)}%</span></div><Bar v={bat} c={lowB ? "#e5533a" : "#9bb8d4"} />
@@ -93,8 +93,8 @@ export function FlightHud() {
         <div className="absolute inset-y-0 left-0 w-[9vw] bg-gradient-to-r from-[#050506]/90 to-transparent" /><div className="absolute inset-y-0 right-0 w-[9vw] bg-gradient-to-l from-[#050506]/90 to-transparent" /></div>
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><svg width="84" height="84" viewBox="-42 -42 84 84" className="opacity-80"><circle r="20" fill="none" stroke="#ece8df" strokeWidth="1" strokeOpacity=".6" /><path d="M-34 0H-24M24 0H34M0 -34V-24M0 24V34" stroke="#e8a45a" strokeWidth="1.5" /><circle r="1.6" fill="#e8a45a" /></svg></div>
       <div className="hud-in absolute left-1/2 top-4 -translate-x-1/2 text-center"><div className="gp px-5 py-2"><p className="font-data text-[9.5px] tracking-[0.28em] text-[#e8a45a]">ORBIT GATES · {moon ? "LUNAR" : "MARS"} ORBIT</p><p className="font-data text-lg">GATE {f.gate + 1} / 8 <span className="text-white/40">·</span> LAPS {f.laps}</p></div></div>
-      <div className="hud-in absolute left-4 top-4 font-data text-[10.5px] tracking-[0.2em] text-white/55"><p className="text-white/80">SPACECRAFT FLIGHT</p><p>MISSION TIME T+<MissionClock /></p></div>
-      <div className="absolute inset-x-0 bottom-3 flex items-end justify-center gap-3 px-4">
+      <div className="hud-in hud-hint absolute left-4 top-4 font-data text-[10.5px] tracking-[0.2em] text-white/55"><p className="text-white/80">SPACECRAFT FLIGHT</p><p>MISSION TIME T+<MissionClock /></p></div>
+      <div className="hud-bottom hud-bottom-flight absolute inset-x-0 bottom-3 flex items-end justify-center gap-3 px-4">
         <div className="gp w-52 space-y-2 p-3"><Lbl>NAVIGATION</Lbl><Row l="Velocity" v={`${(f.speed * 1.05).toFixed(2)} km/s`} /><Row l="Altitude" v={`${f.alt.toFixed(0)} km`} warn={low} />{low && <p className="font-data text-[10.5px] text-[#e5533a]">⚠ LOW ORBIT: {moon ? "SURFACE" : "ATMOSPHERE"}</p>}
           <svg viewBox="-30 -30 60 60" className="mx-auto h-16 w-16"><circle r="22" fill="none" stroke="rgba(255,255,255,.18)" strokeDasharray="2 3" />{Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * 6.283 - 1.57; return <rect key={i} x={Math.cos(a) * 22 - 2} y={Math.sin(a) * 22 - 2} width="4" height="4" fill={i === f.gate ? "#e8a45a" : i < f.gate ? "#8f8c85" : "none"} stroke="#9bb8d4" strokeWidth=".8" />; })}<circle r="3" fill={moon ? "#8c8c92" : "#c0602c"} /></svg><Lbl>TRAJECTORY</Lbl></div>
         <div className="gp w-60 space-y-2 p-3"><div className="flex justify-between"><Lbl>FUEL</Lbl><span className={`font-data text-[12px] ${lowF ? "pulse-warn text-[#e5533a]" : ""}`}>{f.fuel.toFixed(0)}%</span></div><Bar v={f.fuel} c={lowF ? "#e5533a" : "#9bb8d4"} />
@@ -102,7 +102,7 @@ export function FlightHud() {
           <Row l="Flight assist" v={f.assist ? "ON" : "OFF"} /></div>
         <div className="gp hidden w-52 space-y-1 p-3 md:block"><Lbl>SPACECRAFT STATUS</Lbl>{[["Engines", lowF ? "LOW FUEL" : "NOMINAL", lowF], ["Guidance", f.assist ? "ASSIST ON" : "MANUAL", false], ["Life support", r.oxygen < 25 ? "WARNING" : "NOMINAL", r.oxygen < 25], ["Link", r.comms < 30 ? "DEGRADED" : "LOCKED", r.comms < 30]].map(([k, v, w]) => <div key={k as string} className="flex justify-between text-[12px]"><span className="text-white/50">{k}</span><span className={`font-data ${w ? "text-[#e5533a]" : "text-[#8fbf8a]"}`}>● {v}</span></div>)}</div>
       </div>
-      <div className="absolute bottom-[8.5rem] left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">{toast && <div key={toast} className="gp fade-in px-4 py-2 text-sm">{toast}</div>}
+      <div className="hud-toast absolute bottom-[8.5rem] left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">{toast && <div key={toast} className="gp fade-in px-4 py-2 text-sm">{toast}</div>}
         <div className="gp hidden flex-wrap justify-center gap-x-3 gap-y-1 px-3 py-2 md:flex"><Hint keys={["W", "S"]} label="THRUST" /><Hint keys={["A", "D"]} label="YAW" /><Hint keys={["R", "F"]} label="PITCH" /><Hint keys={["Q", "E"]} label="ROLL" /><Hint keys={["Shift"]} label="BOOST" /><Hint keys={["Space"]} label="BRAKE" /><Hint keys={["X"]} label="ASSIST" /><Hint keys={["V"]} label="VIEW" /></div></div>
       {dev && <Fps />}
     </div>

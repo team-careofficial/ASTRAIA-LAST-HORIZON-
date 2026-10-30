@@ -8,7 +8,7 @@ import Welcome from "./Welcome";
 /** Lobby-style home: player badge and stats on top, one big PLAY button, a row of clearly named tiles. */
 const Tile = ({ i, Icon, title, sub, badge, onClick }: { i: number; Icon: typeof Play; title: string; sub: string; badge?: string; onClick: () => void }) => (
   <button onMouseEnter={() => sfx("hover")} onClick={() => { sfx("click"); onClick(); }} style={{ animationDelay: `${0.5 + i * 0.07}s` }}
-    className="lb-tile lb-in group relative flex min-h-[104px] flex-col justify-between overflow-hidden border border-white/15 bg-black/45 p-3.5 text-left backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#e8a45a] hover:bg-black/60 sm:min-h-[128px] sm:p-4">
+    className="lb-tile lb-in group relative flex min-h-[104px] flex-col justify-between overflow-hidden border border-white/15 bg-black/45 p-3.5 text-left backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#e8a45a] hover:bg-black/60 active:scale-[.98] sm:min-h-[128px] sm:p-4">
     <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-[#e8a45a] transition-transform duration-300 group-hover:scale-x-100" />
     <div className="flex items-start justify-between"><Icon size={26} strokeWidth={1.5} className="text-[#e8a45a] transition-transform duration-300 group-hover:scale-110" />{badge && <em className="not-italic bg-[#e8a45a] px-1.5 py-px font-data text-[9px] tracking-widest text-black">{badge}</em>}</div>
     <div><p className="font-ui text-[15px] font-bold leading-tight tracking-[0.12em] sm:text-[17px]">{title}</p><p className="mt-0.5 font-data text-[10px] tracking-[0.16em] text-white/50">{sub}</p></div>
@@ -51,18 +51,19 @@ export default function Menu() {
             {canContinue ? <Play size={26} fill="currentColor" /> : <Rocket size={26} />}{playLabel}</button>
         </section>
         {/* tiles */}
-        <nav aria-label="Main menu" className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-7">
+        <nav aria-label="Main menu" className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
           <Tile i={0} Icon={Plus} title="NEW MISSION" sub="DESIGN · LAUNCH" onClick={() => game.go("destination")} />
           <Tile i={1} Icon={Gauge} title="MISSION CLOSURE" sub="REAL NASA NUMBERS" badge="NEW" onClick={() => game.go("closure")} />
           <Tile i={2} Icon={Sprout} title="GREENHOUSE" sub="SUN · DUST · FOOD" badge="NEW" onClick={() => game.go("greenhouse")} />
           <Tile i={3} Icon={Users} title="CLASSROOM" sub="TEACHER · TEAMS" badge="NEW" onClick={() => game.go("classroom")} />
-          <Tile i={4} Icon={Archive} title="ARCHIVE" sub="PAST MISSIONS" onClick={() => game.go("archive")} />
-          <Tile i={5} Icon={FlaskConical} title="SCIENCE" sub="REAL vs SIMULATED" onClick={() => game.go("science")} />
-          <Tile i={6} Icon={BookOpen} title="MANUAL" sub="HOW IT WORKS" onClick={() => game.go("manual")} />
         </nav>
-        <footer className="lb-in flex flex-wrap items-center justify-between gap-3 font-data text-[10px] tracking-[0.2em] text-white/45" style={{ animationDelay: "1s" }}>
-          <button onClick={game.startDemo} className="flex items-center gap-2 transition-colors hover:text-[#e8a45a]"><Clapperboard size={13} />QUICK DEMO</button>
-          <span>TEAM OMNITRIX · SIMULATED DATA IS ALWAYS LABELLED</span>
+        <footer className="lb-in flex flex-wrap items-center justify-between gap-x-4 gap-y-2 font-data text-[10.5px] tracking-[0.2em] text-white/55" style={{ animationDelay: ".9s" }}>
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
+            {([["ARCHIVE", Archive, "archive"], ["SCIENCE", FlaskConical, "science"], ["MANUAL", BookOpen, "manual"]] as const).map(([t, I, to]) =>
+              <button key={t} onClick={() => { sfx("click"); game.go(to); }} className="flex items-center gap-2 border border-transparent px-3 py-2 transition-colors hover:border-white/20 hover:bg-black/40 hover:text-[#e8a45a] active:bg-black/60"><I size={14} />{t}</button>)}
+            <button onClick={game.startDemo} className="flex items-center gap-2 border border-transparent px-3 py-2 transition-colors hover:border-white/20 hover:bg-black/40 hover:text-[#e8a45a] active:bg-black/60"><Clapperboard size={14} />QUICK DEMO</button>
+          </div>
+          <span className="hidden sm:inline">TEAM OMNITRIX · SIMULATED DATA IS ALWAYS LABELLED</span>
         </footer>
       </div>
       {!seen && <Welcome />}
