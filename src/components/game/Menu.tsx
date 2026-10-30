@@ -1,4 +1,4 @@
-import { Archive, BookOpen, FlaskConical, Play, Plus, Settings, Clapperboard, Gamepad2 } from "lucide-react";
+import { Archive, BookOpen, FlaskConical, Play, Plus, Settings, Clapperboard, Gamepad2, Gauge } from "lucide-react";
 import { sfx } from "@/lib/utils/audio";
 import { game, useGame } from "@/game/engine/store";
 import Welcome from "./Welcome";
@@ -25,10 +25,11 @@ export default function Menu() {
           <Item i={0} Icon={Play} label="CONTINUE MISSION" hint={hasRun ? "RESUME RUN" : committed ? "MODES" : "NO SAVE"} main={canContinue} disabled={!canContinue} onClick={() => (hasRun ? game.continueGame() : game.go("modes"))} />
           <Item i={1} Icon={Plus} label="NEW MISSION" hint="DESIGN" main={!canContinue} onClick={() => game.go("destination")} />
           <Item i={2} Icon={Gamepad2} label="FUN ZONE" hint="GAMES · QUIZ" badge="NEW" onClick={() => game.go("fun")} />
-          <Item i={3} Icon={Archive} label="MISSION ARCHIVE" hint="MISSIONS" onClick={() => game.go("archive")} />
-          <Item i={4} Icon={BookOpen} label="MISSION MANUAL" hint="GUIDE" onClick={() => game.go("manual")} />
-          <Item i={5} Icon={FlaskConical} label="SCIENCE" hint="REAL vs SIM" onClick={() => game.go("science")} />
-          <Item i={6} Icon={Settings} label="SETTINGS" hint="GRAPHICS" onClick={() => game.go("settings")} />
+          <Item i={3} Icon={Gauge} label="MISSION CLOSURE" hint="REAL NASA DATA" badge="NEW" onClick={() => { window.location.href = "/closure/index.html"; }} />
+          <Item i={4} Icon={Archive} label="MISSION ARCHIVE" hint="MISSIONS" onClick={() => game.go("archive")} />
+          <Item i={5} Icon={BookOpen} label="MISSION MANUAL" hint="GUIDE" onClick={() => game.go("manual")} />
+          <Item i={6} Icon={FlaskConical} label="SCIENCE" hint="REAL vs SIM" onClick={() => game.go("science")} />
+          <Item i={7} Icon={Settings} label="SETTINGS" hint="GRAPHICS" onClick={() => game.go("settings")} />
           <button onClick={game.startDemo} className="mt-1 flex items-center gap-2 self-start pl-4 font-data text-[10.5px] tracking-[0.25em] text-white/50 transition-colors hover:text-[#e8a45a]" style={{ animation: "fadeIn 1s 1.9s both" }}><Clapperboard size={13} />QUICK DEMO</button>
         </nav>
         <footer className="flex shrink-0 flex-wrap items-end justify-between gap-x-6 gap-y-2 font-data text-[10.5px] tracking-[0.22em] text-white/45" style={{ animation: "fadeIn 1s 2s both" }}>
