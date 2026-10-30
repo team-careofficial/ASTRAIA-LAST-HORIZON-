@@ -25,7 +25,7 @@ export default function Menu() {
           <Item i={0} Icon={Play} label="CONTINUE MISSION" hint={hasRun ? "RESUME RUN" : committed ? "MODES" : "NO SAVE"} main={canContinue} disabled={!canContinue} onClick={() => (hasRun ? game.continueGame() : game.go("modes"))} />
           <Item i={1} Icon={Plus} label="NEW MISSION" hint="DESIGN" main={!canContinue} onClick={() => game.go("destination")} />
           <Item i={2} Icon={Gamepad2} label="FUN ZONE" hint="GAMES · QUIZ" badge="NEW" onClick={() => game.go("fun")} />
-          <Item i={3} Icon={Gauge} label="MISSION CLOSURE" hint="REAL NASA DATA" badge="NEW" onClick={() => { window.location.href = "/closure/index.html"; }} />
+          <Item i={3} Icon={Gauge} label="MISSION CLOSURE" hint="REAL NASA DATA" badge="NEW" onClick={() => { window.location.href = "/closure"; }} />
           <Item i={4} Icon={Archive} label="MISSION ARCHIVE" hint="MISSIONS" onClick={() => game.go("archive")} />
           <Item i={5} Icon={BookOpen} label="MISSION MANUAL" hint="GUIDE" onClick={() => game.go("manual")} />
           <Item i={6} Icon={FlaskConical} label="SCIENCE" hint="REAL vs SIM" onClick={() => game.go("science")} />
