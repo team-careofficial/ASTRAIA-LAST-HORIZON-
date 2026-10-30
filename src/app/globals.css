@@ -116,3 +116,14 @@ input[type=range] { accent-color: var(--amber); }
 .lb-play::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%); transform: translateX(-120%); animation: lb-shine 3.8s 1.5s ease-in-out infinite; }
 @keyframes lb-shine { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 @media (prefers-reduced-motion: reduce) { .lb-in, .lb-play::after { animation: none; } }
+
+/* ---------- HUD skin (matches the approved concept sheet) ---------- */
+.gp { background: linear-gradient(180deg, rgba(14,13,12,.78), rgba(8,8,9,.86)); border: 1px solid rgba(232,164,90,.28); box-shadow: 0 12px 44px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03); }
+.gp::before, .gp::after { width: 12px; height: 12px; border-width: 2px; border-color: #e8a45a; opacity: .95; }
+.gp:hover { border-color: rgba(232,164,90,.55); }
+.gbtn { background: rgba(10,10,11,.72); border: 1px solid rgba(232,164,90,.4); letter-spacing: .2em; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); padding-left: 1.6rem; padding-right: 1.6rem; }
+.gbtn:hover:not(:disabled) { background: rgba(232,164,90,.14); padding-left: 1.6rem; }
+.gbtn::before { display: none; }
+.gbtn-main { background: linear-gradient(180deg, #f0b673, #e8a45a); color: #120a05; border-color: #e8a45a; box-shadow: 0 0 28px rgba(232,164,90,.28); font-weight: 800; }
+.gbtn-main:hover:not(:disabled) { background: linear-gradient(180deg, #f6c488, #eeb06b); color: #000; box-shadow: 0 0 44px rgba(232,164,90,.5); }
+.tag { border-radius: 1px; background: rgba(0,0,0,.35); }
