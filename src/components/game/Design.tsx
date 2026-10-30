@@ -140,7 +140,7 @@ export function Launch() {
   const phase = [...PHASES].reverse().find(p => t >= p[0])![1], alt = t < 0 ? 0 : Math.min(400, t * t * 4.2), vel = t < 0 ? 0 : Math.min(7.8, t * 0.95) + (t > 9 ? (t - 9) * 1.6 : 0);
   return (
     <div className="fixed inset-0 z-40 overflow-hidden bg-black" style={{ animation: t > 0 && t < 5 ? "none" : undefined }}>
-      <div className="launch-img absolute inset-0" style={{ backgroundImage: "url(/images/scenes/launch.jpg)" }} /><video className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: "50% 22%", opacity: t < 0 ? 0 : 1, transition: "opacity 1.2s" }} src="/video/launch.mp4" poster="/images/scenes/launch.jpg" muted loop playsInline autoPlay aria-hidden="true" /><div className="absolute inset-0 bg-black/25" /><div className="vignette" /><div className="grain" />
+      <div className="launch-img absolute inset-0" style={{ backgroundImage: "url(/images/scenes/launch.jpg)" }} /><div className="absolute inset-0 bg-black/25" /><div className="vignette" /><div className="grain" />
       <div className="exhaust" style={{ opacity: t < 0 ? 0 : t < 7 ? 1 : 0, transition: "opacity 2s" }} />
       <div className="absolute inset-0 grid place-items-center text-center"><div key={phase} className="count-in">
         <p className="font-data text-[11px] tracking-[0.5em] text-white/50">{dest.toUpperCase()} EXPEDITION</p>

@@ -24,5 +24,3 @@ usability test, classroom pilot). Do not submit this file with this paragraph un
 Tool: ChatGPT image generation. Purpose: photographic backdrops for menu, destination, design, closure and launch screens (cropped, resized and darkened; one mirrored).
 They are AI-generated concept art and are labelled as such. Prompts: presentation/CHATGPT_*.txt. Any numbers visible inside these images are placeholders, blurred or covered in the game, and are not game data.
 
-## Launch video (public/video/launch.mp4)
-A 6 s launch clip supplied by the team (source and licence to be confirmed: TEAM: add the site or tool it came from). Re-encoded to 720 px, audio removed. If it is AI-generated it is labelled as such; if it is stock footage the licence must allow use in a competition entry.
