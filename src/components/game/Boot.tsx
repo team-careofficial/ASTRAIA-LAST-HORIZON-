@@ -1,35 +1,36 @@
-import { useEffect, useState } from "react";
-import { game, useGame } from "@/game/engine/store";
+import { useEffect, useRef, useState } from "react";
+import { game } from "@/game/engine/store";
 import { initAudio, sfx } from "@/lib/utils/audio";
 import { getMarsDataProvider } from "@/lib/nasa/provider";
 
-const LINES = ["FLIGHT SYSTEMS", "NAVIGATION / GUIDANCE", "LIFE SUPPORT", "COMMS RELAY", "TERRAIN & MODELS"];
-const TASKS: [string, string][] = [["terrain", "Terrain"], ["crew", "Models"], ["telemetry", "Telemetry"], ["missions", "Mission data"]];
+/** Short, clean intro on the same photo as the home screen, so nothing "changes" when the menu appears.
+ *  One tap is needed because browsers only allow sound after a tap. */
 export default function Boot() {
-  const [run, setRun] = useState(false), [n, setN] = useState(0), [logo, setLogo] = useState(false), [timeUp, setTimeUp] = useState(false), [leaving, setLeaving] = useState(false);
-  const leave = () => { if (leaving) return; setLeaving(true); setTimeout(() => game.go("menu"), 1300); };
-  const ready = useGame(s => s.ready), done = TASKS.filter(([k]) => ready[k]).length, pct = Math.round((done / TASKS.length) * 100);
-  useEffect(() => {
-    if (!run) return;
+  const [phase, setPhase] = useState<"idle" | "load" | "leave">("idle"), [pct, setPct] = useState(0), timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const start = () => {
+    if (phase !== "idle") return;
+    initAudio(); game.audioReady(); sfx("notify"); setPhase("load");
     game.markReady("missions"); getMarsDataProvider().getSnapshot().catch(() => null).finally(() => game.markReady("telemetry"));
-    sfx("static");
-    const t = LINES.map((_, i) => setTimeout(() => { setN(i + 1); sfx("notify"); }, 600 * (i + 1)));
-    t.push(setTimeout(() => setLogo(true), 3800), setTimeout(() => setTimeUp(true), 7600));
-    return () => t.forEach(clearTimeout);
-  }, [run]);
-  useEffect(() => { if (timeUp && pct === 100) leave(); }); // eslint-disable-line react-hooks/exhaustive-deps
+    let p = 0; const tick = () => {
+      p = Math.min(100, p + 10 + Math.random() * 14); setPct(p);
+      if (p < 100) timers.current.push(setTimeout(tick, 110));
+      else timers.current.push(setTimeout(() => { setPhase("leave"); timers.current.push(setTimeout(() => game.go("menu"), 650)); }, 220));
+    };
+    tick();
+  };
   return (
-    <div className={`fixed inset-0 z-50 grid place-items-center overflow-hidden bg-black text-center transition-opacity duration-[1300ms] ${leaving ? "pointer-events-none opacity-0" : ""}`}>
-      <div className="stars" /><div className="stars2" /><div className="vignette" />
-      <div className="planet transition-opacity duration-[3000ms]" style={{ top: "auto", bottom: "-52vmin", right: "-12%", opacity: logo ? 0.85 : 0 }} />
-      {!run ? <div className="fade-in"><h1 className="mb-8 font-display text-3xl tracking-[0.3em] sm:text-5xl">ASTRAIA</h1><button onClick={() => { initAudio(); game.audioReady(); setRun(true); }} className="gbtn gbtn-main" autoFocus>INITIALIZE SYSTEMS</button><p className="mt-5 font-data text-[10.5px] tracking-[0.3em] text-white/35">SOUND ON RECOMMENDED</p></div> : <>
-        <div className={`w-72 text-left font-data text-[11.5px] leading-7 tracking-[0.2em] text-white/70 transition-opacity duration-1000 ${logo ? "opacity-0" : ""}`}>{LINES.slice(0, n).map(l => <div key={l} className="fade-line flex justify-between"><span>{l}</span><span className="text-[#8fbf8a]">ONLINE</span></div>)}</div>
-        {logo && <h1 className="logo-form absolute font-display text-5xl sm:text-7xl">ASTRAIA<span className="mt-4 block font-ui text-sm font-semibold tracking-[0.9em] text-white/75 sm:text-lg">LAST HORIZON</span></h1>}
-        <div className="absolute bottom-8 left-1/2 w-72 -translate-x-1/2 text-left font-data text-[10.5px] tracking-widest text-white/55">
-          <div className="mb-1 flex justify-between"><span>LOADING MISSION SYSTEMS</span><span>{pct}%</span></div>
-          <div className="h-[2px] bg-white/15"><div className="h-full bg-[#e8a45a] transition-all duration-500" style={{ width: `${pct}%` }} /></div>
-          <div className="mt-2 grid grid-cols-2 gap-x-4">{TASKS.map(([k, l]) => <span key={k} className={ready[k] ? "text-white" : ""}>{ready[k] ? "✓" : "○"} {l}</span>)}</div></div>
-        <button onClick={leave} className="absolute right-6 top-6 font-data text-[11px] tracking-widest text-white/40 hover:text-white">SKIP ▸</button></>}
+    <div className={`fixed inset-0 z-50 grid place-items-center overflow-hidden text-center transition-opacity duration-[650ms] ${phase === "leave" ? "pointer-events-none opacity-0" : ""}`}>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,.55),rgba(0,0,0,.2)_70%)]" />
+      <div className="relative px-6">
+        <p className="lb-in font-data text-[10px] tracking-[0.4em] text-[#e8a45a]" style={{ animationDelay: ".1s" }}>NASA SPACE APPS 2026</p>
+        <h1 className="lb-in mt-2 font-display text-[clamp(2.6rem,10vw,6rem)] leading-none tracking-[0.14em]" style={{ animationDelay: ".25s", textShadow: "0 6px 44px rgba(0,0,0,.7)" }}>ASTRAIA</h1>
+        <div className="lb-in mt-3 flex items-center justify-center gap-3" style={{ animationDelay: ".4s" }}><i className="h-px w-10 bg-[#e8a45a]" /><p className="font-ui text-[13px] font-semibold tracking-[0.6em] text-white/85 sm:text-lg sm:tracking-[0.8em]">LAST HORIZON</p><i className="h-px w-10 bg-[#e8a45a]" /></div>
+        <div className="mt-9 h-14">
+          {phase === "idle" ? <button onClick={start} autoFocus className="lb-in lb-play relative bg-[#e8a45a] px-10 py-3 font-ui text-base font-extrabold tracking-[0.28em] text-black shadow-[0_0_34px_rgba(232,164,90,.4)] [clip-path:polygon(14px_0,100%_0,calc(100%-14px)_100%,0_100%)] transition-transform hover:-translate-y-0.5 active:scale-[.97]" style={{ animationDelay: ".7s" }}>TAP TO START</button>
+            : <div className="mx-auto w-56"><div className="h-[3px] rounded-full bg-white/20"><div className="h-full rounded-full bg-[#e8a45a] transition-[width] duration-150" style={{ width: `${pct}%` }} /></div><p className="mt-2 font-data text-[10px] tracking-[0.3em] text-white/60">LOADING MISSION SYSTEMS</p></div>}
+        </div>
+      </div>
     </div>
   );
 }

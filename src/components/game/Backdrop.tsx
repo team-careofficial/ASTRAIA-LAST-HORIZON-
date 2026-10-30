@@ -3,17 +3,17 @@ import type { Screen } from "@/types/world";
 
 /** Photographic backdrop for menu-type screens: slow camera drift, drifting dust, warm light shafts, grain. CSS and one small canvas. */
 const SCENES = {
-  mars: { src: "/images/scenes/mars-key.jpg", blur: 0, dim: 0.28 },
-  hangar: { src: "/images/scenes/hangar.jpg", blur: 5, dim: 0.5 },
+  mars: { src: "/images/scenes/mars-key.jpg", blur: 0, dim: 0.1, pos: "72% 6%" },
+  hangar: { src: "/images/scenes/hangar.jpg", blur: 4, dim: 0.42, pos: "center" },
   control: { src: "/images/scenes/control.jpg", blur: 4, dim: 0.45 },
   moon: { src: "/images/scenes/moon.jpg", blur: 1, dim: 0.35 },
   failure: { src: "/images/scenes/failure.jpg", blur: 2, dim: 0.4 },
   storm: { src: "/images/scenes/storm.jpg", blur: 2, dim: 0.35 },
   map: { src: "/images/scenes/map.jpg", blur: 3, dim: 0.5 },
-} as const;
+} as const satisfies Record<string, { src: string; blur: number; dim: number; pos?: string }>;
 export type SceneId = keyof typeof SCENES;
 export const SCENE_FOR: Partial<Record<Screen, SceneId>> = {
-  menu: "mars", archive: "map", science: "storm", settings: "hangar", modes: "mars", manual: "map", credits: "mars", destination: "mars",
+  boot: "mars", menu: "mars", archive: "map", science: "storm", settings: "hangar", modes: "mars", manual: "map", credits: "mars", destination: "mars",
   design: "hangar", closure: "control", report: "control", greenhouse: "mars", classroom: "hangar",
 };
 
@@ -42,7 +42,7 @@ export default function Backdrop({ scene }: { scene: SceneId }) {
   return (
     <div className="bd-root pointer-events-none fixed inset-0 z-30 overflow-hidden bg-black" aria-hidden="true">
       <div key={scene} className="bd-fade absolute inset-0">
-        <div className="bd-img absolute -inset-[6%]" style={{ backgroundImage: `url(${s.src})`, filter: s.blur ? `blur(${s.blur}px) saturate(1.05)` : undefined }} />
+        <div className="bd-img absolute -inset-[3%]" style={{ backgroundImage: `url(${s.src})`, backgroundPosition: "pos" in s ? s.pos : "center", filter: s.blur ? `blur(${s.blur}px) saturate(1.05)` : undefined }} />
         <div className="absolute inset-0" style={{ background: `rgba(8,6,5,${s.dim})` }} />
         <div className="bd-shafts absolute inset-0" />
       </div>

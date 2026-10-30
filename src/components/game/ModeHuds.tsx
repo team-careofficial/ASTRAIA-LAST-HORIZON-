@@ -4,6 +4,7 @@ import { useEx, ex, POIS, POI_INFO, BASE, LANDER } from "@/game/explore/store";
 import { Hint } from "@/components/ui/KeyCap";
 import { Fps } from "./Hud";
 import { useGame } from "@/game/engine/store";
+import { useCompact } from "./TouchControls";
 
 const fmt = (h: number) => `${String(Math.floor(h)).padStart(2, "0")}:${String(Math.floor((h % 1) * 60)).padStart(2, "0")}`;
 const Row = ({ l, v, warn }: { l: string; v: string; warn?: boolean }) => <div className="flex justify-between gap-6 text-[12px]"><span className="text-white/50">{l}</span><span className={`font-data ${warn ? "text-[#e8a45a]" : ""}`}>{v}</span></div>;
@@ -28,13 +29,13 @@ function Cockpit() {
     </div>
   );
 }
-export function RoverHud() {
+function RoverFull() {
   const e = useEx(s => s), dev = useGame(s => s.settings.dev), moon = useGame(s => s.destination === "moon"), bars = [20, 45, 70, 90].filter(t => e.link >= t).length, near = e.near !== null && e.nearDist < 7;
   const nx = e.near !== null ? POIS[e.near] : null, brg = nx ? Math.atan2(nx.x - e.x, nx.z - e.z) - e.heading : 0, all = e.found.length === POIS.length;
   const objective = e.phase === "deploy" ? "Rover deploying from the lander" : e.queue > 0 && (all || e.link >= 25) ? `Send ${e.queue} finding${e.queue > 1 ? "s" : ""} to Earth` : nx ? (near ? "Stop and hold E to scan the target" : "Drive to the nearest science target") : "All targets scanned. Send your data home";
   const bat = e.battery, lowB = bat < 15;
   return (
-    <div className="pointer-events-none fixed inset-0 z-30 select-none">
+    <div className="hud-root pointer-events-none fixed inset-0 z-30 select-none">
       {e.cockpit && <Cockpit />}
       {/* TOP: objective + distance */}
       <div className="hud-in absolute left-1/2 top-4 flex -translate-x-1/2 flex-col items-center gap-2">
@@ -84,10 +85,10 @@ function MissionClock() {
   useEffect(() => { const i = setInterval(() => setT(Math.floor((Date.now() - t0.current) / 1000)), 1000); return () => clearInterval(i); }, []);
   return <>{String(Math.floor(t / 60)).padStart(2, "0")}:{String(t % 60).padStart(2, "0")}</>;
 }
-export function FlightHud() {
+function FlightFull() {
   const f = useEx(s => s.fl), toast = useEx(s => s.toast), dev = useGame(s => s.settings.dev), r = useGame(s => s.r), moon = useGame(s => s.destination === "moon"), low = f.alt < 15, lowF = f.fuel < 20;
   return (
-    <div className="pointer-events-none fixed inset-0 z-30 select-none">
+    <div className="hud-root pointer-events-none fixed inset-0 z-30 select-none">
       <div className="absolute inset-0" aria-hidden>
         <div className="absolute inset-x-0 top-0 h-[10vh] bg-gradient-to-b from-[#050506] to-transparent" /><div className="absolute inset-x-0 bottom-0 h-[30vh] bg-gradient-to-t from-[#050506] via-[#0c0d10]/95 to-transparent" style={{ clipPath: "polygon(0 100%,0 55%,22% 30%,78% 30%,100% 55%,100% 100%)" }} />
         <div className="absolute inset-y-0 left-0 w-[9vw] bg-gradient-to-r from-[#050506]/90 to-transparent" /><div className="absolute inset-y-0 right-0 w-[9vw] bg-gradient-to-l from-[#050506]/90 to-transparent" /></div>
@@ -108,3 +109,37 @@ export function FlightHud() {
     </div>
   );
 }
+
+const Pill = ({ l, v, bad }: { l: string; v: string; bad?: boolean }) => <div className="hud-pill !px-2 !py-[3px] !text-[9.5px]"><span className="text-white/55">{l}</span><b className={bad ? "pulse-warn text-[#e5533a]" : "text-white"}>{v}</b></div>;
+function RoverMini() {
+  const e = useEx(s => s), moon = useGame(s => s.destination === "moon"), near = e.near !== null && e.nearDist < 7, nx = e.near !== null ? POIS[e.near] : null, all = e.found.length === POIS.length;
+  const brg = nx ? Math.atan2(nx.x - e.x, nx.z - e.z) - e.heading : 0;
+  const objective = e.phase === "deploy" ? "Rover deploying" : e.queue > 0 && (all || e.link >= 25) ? `Send ${e.queue} finding${e.queue > 1 ? "s" : ""} (T)` : nx ? (near ? "Stop, then hold E to scan" : "Drive to the science target") : "All scanned. Send data home";
+  return (
+    <div className="hud-root pointer-events-none fixed inset-0 z-30 select-none">
+      {e.cockpit && <Cockpit />}
+      <div className="hud-miniobj hud-in absolute left-2 top-2 max-w-[17rem]">
+        <p className="font-data text-[9.5px] tracking-[0.22em] text-[#e8a45a]">{moon ? "MOON" : "MARS"} · {e.found.length}/{POIS.length} TARGETS · ★ {e.shards}</p>
+        <p className="text-[13px] leading-tight">{objective}</p>
+        {nx && e.phase === "drive" && <p className="mt-0.5 flex items-center gap-1.5 font-data text-[10px] tracking-widest text-white/70"><Navigation size={12} className="text-[#e8a45a]" style={{ transform: `rotate(${(brg * 180) / Math.PI}deg)` }} />{e.nearDist < 1000 ? `${e.nearDist.toFixed(0)} m` : `${(e.nearDist / 1000).toFixed(1)} km`}</p>}
+      </div>
+      <div className="hud-in absolute right-24 top-2 flex gap-1.5"><Pill l="KM/H" v={e.speed.toFixed(0)} /><Pill l="BAT" v={`${e.battery.toFixed(0)}`} bad={e.battery < 15} /><Pill l="LINK" v={`${e.link.toFixed(0)}`} bad={e.link < 20} /></div>
+      {near && <div className="absolute bottom-3 left-1/2 w-40 -translate-x-1/2 text-center"><p className="font-data text-[10px] tracking-[0.2em] text-[#e8a45a]">{e.scan > 0 ? "SCANNING…" : "HOLD E TO SCAN"}</p><Bar v={e.scan * 100} c="#e8a45a" /></div>}
+      {e.hazard && <div className="absolute left-1/2 top-14 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 font-data text-[10.5px] tracking-[0.15em] text-[#e8a45a]">⚠ {e.hazard}</div>}
+      {e.toast && <div key={e.toast} className="toast-in absolute left-1/2 top-2 max-w-[40vw] -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-center text-[12.5px]">{e.toast}</div>}
+      {e.phase === "deploy" && <div className="fade-in absolute inset-x-0 top-1/3 text-center font-display text-sm tracking-[0.4em] text-white/85">DEPLOYING ROVER</div>}
+    </div>
+  );
+}
+function FlightMini() {
+  const f = useEx(s => s.fl), toast = useEx(s => s.toast), moon = useGame(s => s.destination === "moon"), lowF = f.fuel < 20, low = f.alt < 15;
+  return (
+    <div className="hud-root pointer-events-none fixed inset-0 z-30 select-none">
+      <div className="hud-miniobj hud-in absolute left-2 top-2"><p className="font-data text-[9.5px] tracking-[0.22em] text-[#e8a45a]">ORBIT GATES · {moon ? "LUNAR" : "MARS"}</p><p className="font-data text-[15px] leading-tight">GATE {f.gate + 1}/8 <span className="text-white/40">·</span> LAPS {f.laps}</p></div>
+      <div className="hud-in absolute right-24 top-2 flex gap-1.5"><Pill l="KM/S" v={(f.speed * 1.05).toFixed(1)} /><Pill l="ALT" v={f.alt.toFixed(0)} bad={low} /><Pill l="FUEL" v={`${f.fuel.toFixed(0)}`} bad={lowF} /></div>
+      {toast && <div key={toast} className="fade-in absolute left-1/2 top-14 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-[12.5px]">{toast}</div>}
+    </div>
+  );
+}
+export function RoverHud() { const c = useCompact(); return c ? <RoverMini /> : <RoverFull />; }
+export function FlightHud() { const c = useCompact(); return c ? <FlightMini /> : <FlightFull />; }

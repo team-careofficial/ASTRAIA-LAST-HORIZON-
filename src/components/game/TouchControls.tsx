@@ -16,6 +16,15 @@ export function useCoarse() {
   return c;
 }
 
+/** Small or touch screen: the game shows its slim HUD. */
+export function useCompact() {
+  const [c, setC] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia("(pointer: coarse), (max-height: 520px)"), on = () => setC(m.matches);
+    on(); m.addEventListener("change", on); return () => m.removeEventListener("change", on);
+  }, []);
+  return c;
+}
 function Stick({ mode }: { mode: "walk" | "drive" | "fly" }) {
   const base = useRef<HTMLDivElement>(null), held = useRef(new Set<string>()), [knob, setKnob] = useState({ x: 0, y: 0 }), id = useRef<number | null>(null);
   const R = 46;
@@ -46,7 +55,7 @@ function B({ label, code, hold, cls = "", sub }: { label: string; code: string; 
 }
 
 export default function TouchControls() {
-  const coarse = useCoarse(), screen = useGame(s => s.screen), paused = useGame(s => s.paused), dialog = useGame(s => s.dialog), nearby = useGame(s => s.nearby), active = useGame(s => s.active);
+  const coarse = useCoarse(), screen = useGame(s => s.screen), paused = useGame(s => s.paused), dialog = useGame(s => s.dialog), nearby = useGame(s => s.nearby);
   if (!coarse || !(screen === "play" || screen === "rover" || screen === "flight")) return null;
   const mode = screen === "play" ? "walk" : screen === "rover" ? "drive" : "fly";
   return (
@@ -57,16 +66,17 @@ export default function TouchControls() {
         <div className="tc-right">
           {mode === "walk" && <>
             <B label="E" code="KeyE" cls={nearby ? "tc-hot tc-big" : "tc-big"} sub="ACT" />
-            <B label="⇥" code="Tab" sub={`CREW ${active + 1}`} />
+            
           </>}
           {mode === "drive" && <>
+            <B label="E" code="KeyE" hold cls="tc-big tc-hot" sub="SCAN" />
             <B label="⚡" code="ShiftLeft" hold sub="BOOST" /><B label="■" code="Space" hold sub="BRAKE" />
-            <B label="T" code="KeyT" sub="SEND" /><B label="F" code="KeyF" sub="WINGS" /><B label="L" code="KeyL" sub="LIGHT" /><B label="V" code="KeyV" sub="CAM" /><B label="C" code="KeyC" sub="CLEAN" cls="tc-wide" />
+            <B label="T" code="KeyT" sub="SEND" cls="tc-sm" /><B label="F" code="KeyF" sub="WINGS" cls="tc-sm" /><B label="L" code="KeyL" sub="LIGHT" cls="tc-sm" /><B label="V" code="KeyV" sub="CAM" cls="tc-sm" /><B label="C" code="KeyC" sub="CLEAN" cls="tc-sm" />
           </>}
           {mode === "fly" && <>
             <B label="▲" code="KeyR" hold sub="PITCH" /><B label="▼" code="KeyF" hold sub="PITCH" />
             <B label="↶" code="KeyQ" hold sub="ROLL" /><B label="↷" code="KeyE" hold sub="ROLL" />
-            <B label="■" code="Space" hold sub="BRAKE" /><B label="V" code="KeyV" sub="CAM" /><B label="X" code="KeyX" sub="ASSIST" />
+            <B label="■" code="Space" hold sub="BRAKE" /><B label="V" code="KeyV" sub="CAM" cls="tc-sm" /><B label="X" code="KeyX" sub="ASSIST" cls="tc-sm" />
           </>}
         </div>
       </>}
