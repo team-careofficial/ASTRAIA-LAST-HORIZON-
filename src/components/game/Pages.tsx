@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, Lock, Check, Target, Truck, Rocket } from "lucide-react";
+import { ArrowLeft, Lock, Check, Target, Truck, Rocket, X } from "lucide-react";
+import { sfx } from "@/lib/utils/audio";
 import { ex } from "@/game/explore/store";
 import { game, useGame, recommendQuality } from "@/game/engine/store";
 import { MISSIONS, WIP } from "@/data/world/missions";
@@ -11,14 +12,15 @@ import type { Settings } from "@/types/world";
 import * as D from "@/data/design/options";
 
 export const Shell = ({ title, sub, onBack, children, flat }: { title: string; sub?: string; onBack: () => void; children: ReactNode; flat?: boolean }) => (
-  <div className="screen-in fixed inset-0 z-40 overflow-auto">
-    <div className={`pointer-events-none fixed inset-0 ${flat ? "bg-black/70" : "bg-gradient-to-r from-[#08090b]/95 via-[#08090b]/70 to-[#08090b]/25"}`} /><div className="vignette fixed" />
-    <div className="relative mx-auto max-w-6xl px-5 pb-28 pt-6 sm:px-10">
-      <header className="mb-7 flex items-end justify-between gap-4 border-b border-white/10 pb-4">
-        <div><Eyebrow>{sub ?? "ASTRAIA · LAST HORIZON"}</Eyebrow><h1 className="mt-1 font-display text-lg tracking-[0.3em] sm:text-xl">{title}</h1></div>
-        <Btn icon={<ArrowLeft size={15} />} onClick={onBack}>BACK</Btn>
+  <div className="screen-in fixed inset-0 z-40 overflow-auto" style={{ paddingTop: "env(safe-area-inset-top)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
+    <div className={`pointer-events-none fixed inset-0 ${flat ? "bg-black/70" : "bg-gradient-to-r from-[#08090b]/90 via-[#08090b]/65 to-[#08090b]/30"}`} /><div className="vignette fixed" />
+    <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-3 sm:px-8">
+      <header className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-4 bg-gradient-to-b from-black/70 to-transparent px-4 py-2 sm:-mx-8 sm:px-8">
+        <div className="flex items-center gap-3"><i className="h-7 w-[3px] bg-[#e8a45a]" /><div><Eyebrow>{sub ?? "ASTRAIA · LAST HORIZON"}</Eyebrow><h1 className="font-display text-[13px] tracking-[0.26em] sm:text-base">{title}</h1></div></div>
+        <button aria-label="Back" onClick={() => { sfx("click"); onBack(); }} className="lob-btn grid h-9 w-9 shrink-0 place-items-center hover:text-[#ffc14d]"><X size={18} /></button>
       </header>{children}</div></div>
 );
+
 export function Archive() {
   const sel = useGame(s => s.selected), done = useGame(s => s.completed), lvl = useGame(s => s.level), xp = useGame(s => s.xp), m = MISSIONS[Math.min(sel, 4)], c = done[m.id], open = game.unlocked(sel);
   return (

@@ -1,70 +1,78 @@
 import type { ReactNode } from "react";
-import { Archive, BookOpen, Clapperboard, FlaskConical, Gauge, Play, Plus, Settings, Rocket, Sprout, Users } from "lucide-react";
+import { Archive, BookOpen, Clapperboard, FlaskConical, Gauge, Play, Settings, Rocket, Sprout, Users, ChevronRight } from "lucide-react";
 import { sfx } from "@/lib/utils/audio";
 import { game, useGame } from "@/game/engine/store";
 import { MISSIONS } from "@/data/world/missions";
+import { CREW3D } from "@/data/world/missions";
+import Avatar from "@/components/ui/Avatar";
 import Welcome from "./Welcome";
+import { intro } from "@/game/engine/intro";
+import { useState } from "react";
 
-/** Lobby-style home: player badge on top, wordmark and one big PLAY button on the left, four clear cards below. The astronaut on the right stays free. */
-const SHORT = "[@media(max-height:520px)]";
-const Tile = ({ i, Icon, title, sub, badge, onClick }: { i: number; Icon: typeof Play; title: string; sub: string; badge?: string; onClick: () => void }) => (
-  <button onMouseEnter={() => sfx("hover")} onClick={() => { sfx("click"); onClick(); }} style={{ animationDelay: `${0.45 + i * 0.07}s` }}
-    className={`lb-tile lb-in group relative flex items-center gap-3 overflow-hidden rounded-[6px] border border-white/12 bg-black/40 px-3 py-3 text-left backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#e8a45a]/80 hover:bg-black/55 active:scale-[.98] sm:px-4 sm:py-4 ${SHORT}:py-2`}>
-    <span className="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-[#e8a45a] transition-transform duration-300 group-hover:scale-x-100" />
-    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[6px] bg-[#e8a45a]/12 text-[#e8a45a] transition-colors group-hover:bg-[#e8a45a] group-hover:text-black sm:h-11 sm:w-11"><Icon size={20} strokeWidth={1.7} /></span>
-    <span className="min-w-0"><span className="block truncate font-ui text-[13px] font-bold leading-tight tracking-[0.1em] sm:text-[15px]">{title}</span><span className={`mt-0.5 block truncate font-data text-[9.5px] tracking-[0.14em] text-white/50 ${SHORT}:hidden`}>{sub}</span></span>
-    {badge && <em className="absolute right-2 top-2 not-italic rounded-sm bg-[#e8a45a] px-1.5 py-px font-data text-[8.5px] tracking-widest text-black">{badge}</em>}
+/** Lobby home, laid out like a mobile shooter lobby: profile top-left, logo and settings top-right, a short button stack on the left,
+ *  the squad on the right edge, tabs bottom-left, mode plate and one big START bottom-right. The astronaut photo stays in the middle. */
+const SideBtn = ({ i, Icon, label, dot, onClick }: { i: number; Icon: typeof Play; label: string; dot?: boolean; onClick: () => void }) => (
+  <button onMouseEnter={() => sfx("hover")} onClick={() => { sfx("click"); onClick(); }} style={{ animationDelay: `${0.35 + i * 0.07}s` }}
+    className="lob-l lob-btn group relative flex w-[8.6rem] items-center gap-2.5 px-3 py-2 text-left sm:w-40 sm:py-2.5">
+    <Icon size={16} strokeWidth={1.8} className="shrink-0 text-[#e8a45a] transition-transform duration-300 group-hover:scale-110" />
+    <span className="font-ui text-[12.5px] font-bold tracking-[0.12em] sm:text-[13.5px]">{label}</span>
+    {dot && <i className="absolute right-2 top-1.5 h-1.5 w-1.5 rounded-full bg-[#e5533a] shadow-[0_0_6px_#e5533a]" />}
   </button>
 );
-const Chip = ({ children, label }: { children: ReactNode; label: string }) => (
-  <div className="flex items-center gap-2 rounded-full border border-white/12 bg-black/40 px-3 py-1.5 backdrop-blur-md"><span className="font-data text-[9px] tracking-[0.2em] text-white/45">{label}</span><b className="font-data text-[12px] text-white">{children}</b></div>
+const Tab = ({ Icon, label, onClick }: { Icon: typeof Play; label: string; onClick: () => void }) => (
+  <button onClick={() => { sfx("click"); onClick(); }} className="lob-tab group flex items-center gap-2 px-3.5 py-2.5 font-ui text-[11.5px] font-bold tracking-[0.16em] text-white/70 transition-colors hover:text-[#e8a45a] sm:px-5 sm:text-[12.5px]"><Icon size={15} />{label}</button>
 );
 export default function Menu() {
   const seen = useGame(s => s.settings.seenIntro), hasRun = useGame(s => s.hasRun), committed = useGame(s => s.committed), lvl = useGame(s => s.level), xp = useGame(s => s.xp), dest = useGame(s => s.destination), done = useGame(s => Object.keys(s.completed).length);
+  const [fl] = useState(() => { const f = intro.flash; intro.flash = false; return f; });
   const canContinue = hasRun || committed, total = MISSIONS.length, into = xp % 150;
-  const playLabel = canContinue ? "CONTINUE" : "START MISSION";
   const play = () => (hasRun ? game.continueGame() : committed ? game.go("modes") : game.go("destination"));
+  const Pill = ({ children }: { children: ReactNode }) => <span className="rounded-sm bg-black/45 px-2 py-0.5 font-data text-[10px] tracking-[0.12em] text-white/85">{children}</span>;
   return (
-    <div className="screen-in fixed inset-0 z-40 overflow-y-auto overflow-x-hidden">
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/35" /><div className="pointer-events-none fixed inset-0 bg-gradient-to-r from-black/65 via-black/10 to-transparent" />
-      <div className="relative mx-auto flex min-h-full max-w-[1500px] flex-col justify-between gap-4 px-4 pb-3 pt-3 sm:px-8 sm:pb-5 sm:pt-5" style={{ paddingLeft: "max(1rem, env(safe-area-inset-left))", paddingRight: "max(1rem, env(safe-area-inset-right))" }}>
-        <header className="lb-in flex items-center justify-between gap-3" style={{ animationDelay: ".1s" }}>
-          <div className="flex items-center gap-3 rounded-full border border-white/12 bg-black/40 py-1.5 pl-1.5 pr-5 backdrop-blur-md">
-            <div className="grid h-10 w-10 shrink-0 place-items-center border-2 border-[#e8a45a] bg-gradient-to-b from-[#652E15] to-[#25130B] font-display text-base text-[#e8a45a]" style={{ clipPath: "polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)" }}>{lvl}</div>
-            <div className="w-28 sm:w-44"><p className="font-ui text-[13px] font-bold tracking-[0.18em]">ENGINEER</p>
-              <div className="mt-1 h-[4px] rounded-full bg-white/15"><div className="h-full rounded-full bg-[#e8a45a] transition-all duration-700" style={{ width: `${Math.max(4, (into / 150) * 100)}%` }} /></div>
-              <p className="mt-1 font-data text-[9px] tracking-[0.18em] text-white/45">LEVEL {lvl} · {xp} XP</p></div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:contents"><Chip label="MISSIONS">{done} / {total}</Chip><Chip label="TARGET">{dest.toUpperCase()}</Chip></span>
-            <button aria-label="Settings" onClick={() => { sfx("click"); game.go("settings"); }} className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-black/40 backdrop-blur-md transition-colors hover:border-[#e8a45a] hover:text-[#e8a45a]"><Settings size={17} /></button>
-          </div>
-        </header>
-        <section className="max-w-[640px]">
-          <p className="lb-in font-data text-[10px] tracking-[0.34em] text-[#e8a45a]" style={{ animationDelay: ".2s" }}>NASA SPACE APPS 2026 · MISSION DESIGN</p>
-          <h1 className={`lb-in mt-1.5 font-display text-[clamp(2.4rem,7.5vw,5.4rem)] leading-[0.95] tracking-[0.12em] ${SHORT}:text-[2.5rem]`} style={{ animationDelay: ".3s", textShadow: "0 6px 40px rgba(0,0,0,.65)" }}>ASTRAIA</h1>
-          <div className="lb-in mt-2 flex items-center gap-3" style={{ animationDelay: ".4s" }}><i className="h-px w-10 bg-[#e8a45a]" /><p className="font-ui text-[13px] font-semibold tracking-[0.55em] text-white/85 sm:text-base sm:tracking-[0.7em]">LAST HORIZON</p></div>
-          <p className={`lb-in mt-3 max-w-sm text-[14px] leading-snug text-white/70 ${SHORT}:hidden`} style={{ animationDelay: ".45s" }}>Design a real Moon or Mars mission. Does it close? Every number has a receipt.</p>
-          <div className="lb-in mt-4 flex flex-wrap items-center gap-3 sm:mt-5" style={{ animationDelay: ".55s" }}>
-            <button onMouseEnter={() => sfx("hover")} onClick={() => { sfx("click"); play(); }} className="lb-play group relative flex items-center gap-3 bg-[#e8a45a] py-3 pl-7 pr-12 font-ui text-[17px] font-extrabold tracking-[0.2em] text-black shadow-[0_0_34px_rgba(232,164,90,.35)] transition-all duration-300 [clip-path:polygon(0_0,100%_0,calc(100%-18px)_100%,0_100%)] hover:-translate-y-0.5 hover:bg-[#f2b878] active:scale-[.98] sm:py-4 sm:text-xl">
-              {canContinue ? <Play size={22} fill="currentColor" /> : <Rocket size={22} />}{playLabel}</button>
-            <button onClick={game.startDemo} className="flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-2.5 font-data text-[10.5px] tracking-[0.2em] text-white/70 backdrop-blur-md transition-colors hover:border-[#e8a45a] hover:text-[#e8a45a]"><Clapperboard size={13} />QUICK DEMO</button>
-          </div>
-        </section>
-        <div className="max-w-[980px]">
-          <nav aria-label="Main menu" className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 [@media(max-height:520px)]:grid-cols-4">
-            <Tile i={0} Icon={Plus} title="NEW MISSION" sub="DESIGN · LAUNCH" onClick={() => game.go("destination")} />
-            <Tile i={1} Icon={Gauge} title="CLOSURE" sub="REAL NASA NUMBERS" badge="NEW" onClick={() => game.go("closure")} />
-            <Tile i={2} Icon={Sprout} title="GREENHOUSE" sub="SUN · DUST · FOOD" badge="NEW" onClick={() => game.go("greenhouse")} />
-            <Tile i={3} Icon={Users} title="CLASSROOM" sub="TEACHER · TEAMS" badge="NEW" onClick={() => game.go("classroom")} />
-          </nav>
-          <footer className="lb-in mt-2 flex flex-wrap items-center gap-x-1 font-data text-[10px] tracking-[0.2em] text-white/55" style={{ animationDelay: ".9s" }}>
-            {([["ARCHIVE", Archive, "archive"], ["SCIENCE", FlaskConical, "science"], ["MANUAL", BookOpen, "manual"]] as const).map(([t, I, to]) =>
-              <button key={t} onClick={() => { sfx("click"); game.go(to); }} className="flex items-center gap-2 rounded-full px-3 py-2 transition-colors hover:bg-black/40 hover:text-[#e8a45a] active:bg-black/60"><I size={13} />{t}</button>)}
-            <span className="ml-auto hidden lg:inline">TEAM OMNITRIX · SIMULATED DATA IS ALWAYS LABELLED</span>
-          </footer>
+    <div className="fixed inset-0 z-40 select-none overflow-hidden" style={{ paddingTop: "env(safe-area-inset-top)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/40" /><div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-black/25" />
+      {/* top-left: player */}
+      <div className="lob-t absolute left-2 top-2 flex items-center gap-2 sm:left-4 sm:top-3" style={{ animationDelay: ".1s" }}>
+        <div className="lob-plate flex items-center gap-2.5 py-1.5 pl-1.5 pr-4">
+          <div className="grid h-9 w-9 shrink-0 place-items-center border-2 border-[#e8a45a] bg-gradient-to-b from-[#652E15] to-[#25130B] font-display text-sm text-[#e8a45a]" style={{ clipPath: "polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)" }}>{lvl}</div>
+          <div className="w-24 sm:w-36"><p className="font-ui text-[12px] font-bold tracking-[0.16em]">ENGINEER</p>
+            <div className="mt-1 h-[3px] rounded-full bg-white/15"><div className="h-full rounded-full bg-[#e8a45a] transition-all duration-700" style={{ width: `${Math.max(5, (into / 150) * 100)}%` }} /></div></div>
         </div>
+        <div className="hidden items-center gap-1.5 sm:flex"><Pill>MISSIONS {done}/{total}</Pill><Pill>XP {xp}</Pill></div>
       </div>
+      {/* top-right: logo and settings */}
+      <div className="lob-t absolute right-2 top-2 flex items-center gap-3 sm:right-4 sm:top-3" style={{ animationDelay: ".15s" }}>
+        <div className="text-right leading-none"><p className="font-display text-[15px] tracking-[0.22em] sm:text-[18px]" style={{ textShadow: "0 2px 12px rgba(0,0,0,.7)" }}>ASTRAIA</p><p className="mt-1 font-ui text-[8.5px] font-semibold tracking-[0.5em] text-[#e8a45a]">LAST HORIZON</p></div>
+        <button aria-label="Settings" onClick={() => { sfx("click"); game.go("settings"); }} className="lob-btn grid h-9 w-9 place-items-center transition-colors hover:text-[#e8a45a]"><Settings size={17} /></button>
+      </div>
+      {/* left: short button stack */}
+      <nav aria-label="Main menu" className="absolute left-2 top-16 flex flex-col gap-1.5 sm:left-4 sm:top-[4.6rem]">
+        <SideBtn i={0} Icon={Gauge} label="CLOSURE" dot onClick={() => game.go("closure")} />
+        <SideBtn i={1} Icon={Sprout} label="GREENHOUSE" dot onClick={() => game.go("greenhouse")} />
+        <SideBtn i={2} Icon={Users} label="CLASSROOM" dot onClick={() => game.go("classroom")} />
+        <SideBtn i={3} Icon={Clapperboard} label="QUICK DEMO" onClick={game.startDemo} />
+      </nav>
+      {/* right edge: the squad */}
+      <div className="absolute right-2 top-16 flex flex-col gap-2 sm:right-4 sm:top-[4.6rem]">
+        {CREW3D.map((c, i) => <div key={c.id} className="lob-r flex items-center justify-end gap-2" style={{ animationDelay: `${0.35 + i * 0.07}s` }}>
+          <span className="hidden text-right lg:block"><span className="block font-ui text-[11.5px] font-bold tracking-[0.1em]">{c.name.toUpperCase()}</span><span className="block font-data text-[8.5px] tracking-[0.14em] text-white/55">{c.role.toUpperCase()}</span></span>
+          <span className="lob-ava grid h-9 w-9 place-items-center overflow-hidden rounded-full sm:h-10 sm:w-10"><Avatar id={c.id} size={34} /></span></div>)}
+      </div>
+      {/* bottom-left: tabs */}
+      <div className="lob-b lob-tabs absolute bottom-2 left-2 flex sm:bottom-3 sm:left-4" style={{ animationDelay: ".45s" }}>
+        <Tab Icon={Archive} label="ARCHIVE" onClick={() => game.go("archive")} /><Tab Icon={FlaskConical} label="SCIENCE" onClick={() => game.go("science")} /><Tab Icon={BookOpen} label="MANUAL" onClick={() => game.go("manual")} />
+      </div>
+      {/* bottom-right: mode plate and START */}
+      <div className="absolute bottom-2 right-2 flex w-[15rem] flex-col items-stretch gap-1.5 sm:bottom-3 sm:right-4 sm:w-[19rem]">
+        <button onMouseEnter={() => sfx("hover")} onClick={() => { sfx("click"); game.go("modeselect"); }} style={{ animationDelay: ".5s" }} className="lob-b lob-btn group flex items-center gap-3 px-3 py-2 text-left">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-sm bg-[#e8a45a]/15 text-[#e8a45a]"><Rocket size={18} /></span>
+          <span className="min-w-0 flex-1"><span className="block font-data text-[8.5px] tracking-[0.2em] text-white/50">MODE</span><span className="block truncate font-ui text-[14px] font-bold tracking-[0.12em]">{dest.toUpperCase()} MISSION</span></span>
+          <ChevronRight size={18} className="text-[#e8a45a] transition-transform group-hover:translate-x-1" />
+        </button>
+        <button onMouseEnter={() => sfx("hover")} onClick={() => { sfx("click"); play(); }} style={{ animationDelay: ".6s" }} className="lob-pop lob-start group relative flex h-12 items-center justify-center gap-3 font-ui text-[22px] font-extrabold tracking-[0.2em] text-black sm:h-14 sm:text-[26px]">
+          {canContinue ? <><Play size={20} fill="currentColor" />CONTINUE</> : "START"}</button>
+      </div>
+      {fl && <div className="flash2" />}
       {!seen && <Welcome />}
     </div>
   );

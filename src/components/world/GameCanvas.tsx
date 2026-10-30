@@ -9,7 +9,7 @@ import { cam } from "./camera";
 import { game, useGame } from "@/game/engine/store";
 import { usePreview } from "@/game/engine/preview";
 
-const MENU_SCREENS = ["boot", "menu", "archive", "science", "settings", "manual", "destination", "design", "launch", "report", "modes", "fun"];
+const MENU_SCREENS = ["boot", "menu", "modeselect", "archive", "science", "settings", "manual", "destination", "design", "launch", "report", "modes", "fun"];
 export default function GameCanvas() {
   const q = useGame(s => s.settings.quality), screen = useGame(s => s.screen), dest = useGame(s => s.destination), pv = usePreview();
   const touch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches, mode = screen === "rover" ? "rover" : screen === "flight" ? "flight" : MENU_SCREENS.includes(screen) ? "menu" : "world", moon = (pv ?? dest) === "moon";

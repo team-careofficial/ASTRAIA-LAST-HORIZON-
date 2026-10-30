@@ -2,35 +2,45 @@ import { useEffect, useRef, useState } from "react";
 import { game } from "@/game/engine/store";
 import { initAudio, sfx } from "@/lib/utils/audio";
 import { getMarsDataProvider } from "@/lib/nasa/provider";
+import { intro } from "@/game/engine/intro";
 
-/** Short, clean intro on the same photo as the home screen, so nothing "changes" when the menu appears.
+/** Intro in three beats, like a mobile shooter: 1) team logo on black, 2) splash art with a thin loading line and the game logo,
+ *  3) tap, a warm flash, and the lobby slides in. The splash is the same photo as the lobby, so nothing jumps.
  *  One tap is needed because browsers only allow sound after a tap. */
 export default function Boot() {
-  const [phase, setPhase] = useState<"idle" | "load" | "leave">("idle"), [pct, setPct] = useState(0), timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-  const start = () => {
-    if (phase !== "idle") return;
-    initAudio(); game.audioReady(); sfx("notify"); setPhase("load");
+  const [phase, setPhase] = useState<"brand" | "splash" | "flash">("brand"), [pct, setPct] = useState(0), [ready, setReady] = useState(false), timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const later = (f: () => void, ms: number) => { timers.current.push(setTimeout(f, ms)); };
+  useEffect(() => {
+    later(() => setPhase("splash"), 1700);
     game.markReady("missions"); getMarsDataProvider().getSnapshot().catch(() => null).finally(() => game.markReady("telemetry"));
-    let p = 0; const tick = () => {
-      p = Math.min(100, p + 10 + Math.random() * 14); setPct(p);
-      if (p < 100) timers.current.push(setTimeout(tick, 110));
-      else timers.current.push(setTimeout(() => { setPhase("leave"); timers.current.push(setTimeout(() => game.go("menu"), 650)); }, 220));
-    };
-    tick();
+    let p = 0; const tick = () => { p = Math.min(100, p + 3 + Math.random() * 7); setPct(p); if (p < 100) later(tick, 90); else later(() => setReady(true), 250); };
+    later(tick, 1900);
+    return () => timers.current.forEach(clearTimeout);
+  }, []);
+  const start = () => {
+    if (!ready || phase !== "splash") return;
+    initAudio(); game.audioReady(); sfx("notify"); setPhase("flash");
+    later(() => { intro.flash = true; game.go("menu"); }, 170);
   };
   return (
-    <div className={`fixed inset-0 z-50 grid place-items-center overflow-hidden text-center transition-opacity duration-[650ms] ${phase === "leave" ? "pointer-events-none opacity-0" : ""}`}>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,.55),rgba(0,0,0,.2)_70%)]" />
-      <div className="relative px-6">
-        <p className="lb-in font-data text-[10px] tracking-[0.4em] text-[#e8a45a]" style={{ animationDelay: ".1s" }}>NASA SPACE APPS 2026</p>
-        <h1 className="lb-in mt-2 font-display text-[clamp(2.6rem,10vw,6rem)] leading-none tracking-[0.14em]" style={{ animationDelay: ".25s", textShadow: "0 6px 44px rgba(0,0,0,.7)" }}>ASTRAIA</h1>
-        <div className="lb-in mt-3 flex items-center justify-center gap-3" style={{ animationDelay: ".4s" }}><i className="h-px w-10 bg-[#e8a45a]" /><p className="font-ui text-[13px] font-semibold tracking-[0.6em] text-white/85 sm:text-lg sm:tracking-[0.8em]">LAST HORIZON</p><i className="h-px w-10 bg-[#e8a45a]" /></div>
-        <div className="mt-9 h-14">
-          {phase === "idle" ? <button onClick={start} autoFocus className="lb-in lb-play relative bg-[#e8a45a] px-10 py-3 font-ui text-base font-extrabold tracking-[0.28em] text-black shadow-[0_0_34px_rgba(232,164,90,.4)] [clip-path:polygon(14px_0,100%_0,calc(100%-14px)_100%,0_100%)] transition-transform hover:-translate-y-0.5 active:scale-[.97]" style={{ animationDelay: ".7s" }}>TAP TO START</button>
-            : <div className="mx-auto w-56"><div className="h-[3px] rounded-full bg-white/20"><div className="h-full rounded-full bg-[#e8a45a] transition-[width] duration-150" style={{ width: `${pct}%` }} /></div><p className="mt-2 font-data text-[10px] tracking-[0.3em] text-white/60">LOADING MISSION SYSTEMS</p></div>}
+    <>
+      <div onClick={start} className={`fixed inset-0 z-50 select-none transition-opacity duration-700 ${ready && phase === "splash" ? "cursor-pointer" : ""}`}>
+        {/* beat 1: team logo */}
+        <div className={`absolute inset-0 grid place-items-center bg-black transition-opacity duration-[900ms] ${phase === "brand" ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+          <div className="text-center"><p className="lb-in font-display text-[clamp(1.4rem,5vw,2.4rem)] tracking-[0.5em]" style={{ animationDelay: ".15s" }}>OMNITRIX</p><p className="lb-in mt-2 font-data text-[10px] tracking-[0.5em] text-[#e8a45a]" style={{ animationDelay: ".5s" }}>TEAM PRESENTS</p></div>
+        </div>
+        {/* beat 2: splash */}
+        <div className={`absolute inset-0 transition-opacity duration-[900ms] ${phase === "brand" ? "opacity-0" : "opacity-100"}`}>
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_60%,rgba(0,0,0,.45),rgba(0,0,0,.05)_70%)]" /><div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] text-right leading-none">
+            <p className="font-display text-[clamp(1.6rem,5vw,3rem)] tracking-[0.2em]" style={{ textShadow: "0 4px 24px rgba(0,0,0,.75)" }}>ASTRAIA</p><p className="mt-1.5 font-ui text-[11px] font-semibold tracking-[0.6em] text-[#e8a45a] sm:text-sm">LAST HORIZON</p></div>
+          <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-[max(1.25rem,env(safe-area-inset-left))] w-[min(46vw,22rem)]">
+            {ready ? <p className="font-ui text-[15px] font-bold tracking-[0.3em] text-white" style={{ animation: "tap-blink 1.4s ease-in-out infinite" }}>TAP TO START</p>
+              : <><p className="mb-1.5 font-data text-[9.5px] tracking-[0.3em] text-white/70">LOADING {Math.round(pct)}%</p><div className="h-[3px] bg-white/20"><div className="h-full bg-[#ffc14d] shadow-[0_0_10px_#ffc14d] transition-[width] duration-100" style={{ width: `${pct}%` }} /></div></>}
+          </div>
         </div>
       </div>
-    </div>
+      {phase === "flash" && <div className="flash" />}
+    </>
   );
 }

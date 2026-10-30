@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { game, useGame } from "@/game/engine/store";
 import Boot from "@/components/game/Boot";
 import Menu from "@/components/game/Menu";
+import ModeSelect from "@/components/game/ModeSelect";
 import Hud from "@/components/game/Hud";
 import Pause, { ModePause } from "@/components/game/Pause";
 import GuideHost from "@/components/guide/GuidePanel";
@@ -28,7 +29,7 @@ export default function Page() {
   return (
     <main className="fixed inset-0 overflow-hidden bg-black" style={{ zoom: scale }}>
       <GameCanvas />{(screen === "result" ? (failed ? "failure" : "mars") : SCENE_FOR[screen]) && <Backdrop scene={(screen === "result" ? (failed ? "failure" : "mars") : SCENE_FOR[screen])!} />}
-      {screen === "boot" && <Boot />}{screen === "menu" && <Menu />}{screen === "archive" && <Archive />}{screen === "science" && <Science />}
+      {screen === "boot" && <Boot />}{screen === "menu" && <Menu />}{screen === "modeselect" && <ModeSelect />}{screen === "archive" && <Archive />}{screen === "science" && <Science />}
       {screen === "settings" && <SettingsPage />}{screen === "modes" && <Modes />}{screen === "closure" && <Closure />}{screen === "greenhouse" && <Greenhouse />}{screen === "classroom" && <Classroom initialCode={joinCode} />}{screen === "manual" && <Manual />}<GuideHost />{screen === "destination" && <Destination />}{screen === "design" && <Design />}{screen === "launch" && <Launch />}{screen === "report" && <Report />}{screen === "rover" && <RoverHud />}{screen === "flight" && <FlightHud />}{(screen === "rover" || screen === "flight") && paused && <ModePause />}{screen === "briefing" && <Briefing />}
       {screen === "play" && <Hud />}{screen === "play" && paused && <Pause />}{screen === "result" && <Result />}
       <TouchControls />{(screen === "play" || screen === "rover" || screen === "flight") && <div className="rotate-hint" aria-hidden><span>⟳</span><p>Turn your phone sideways to play</p></div>}

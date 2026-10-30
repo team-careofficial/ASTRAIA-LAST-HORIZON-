@@ -13,7 +13,7 @@ const SCENES = {
 } as const satisfies Record<string, { src: string; blur: number; dim: number; pos?: string }>;
 export type SceneId = keyof typeof SCENES;
 export const SCENE_FOR: Partial<Record<Screen, SceneId>> = {
-  boot: "mars", menu: "mars", archive: "map", science: "storm", settings: "hangar", modes: "mars", manual: "map", credits: "mars", destination: "mars",
+  boot: "mars", menu: "mars", modeselect: "hangar", archive: "map", science: "storm", settings: "hangar", modes: "mars", manual: "map", credits: "mars", destination: "mars",
   design: "hangar", closure: "control", report: "control", greenhouse: "mars", classroom: "hangar",
 };
 
