@@ -109,3 +109,10 @@ input[type=range] { accent-color: var(--amber); }
 .launch-img { background-size: cover; background-position: center; animation: launch-rise 15s ease-in forwards; }
 @keyframes launch-rise { from { transform: scale(1.02) translateY(0); } to { transform: scale(1.35) translateY(7%); } }
 @media (prefers-reduced-motion: reduce) { .bd-img, .bd-shafts, .launch-img { animation: none; } }
+
+/* ---------- Lobby home ---------- */
+.lb-in { animation: lb-in .7s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lb-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.lb-play::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%); transform: translateX(-120%); animation: lb-shine 3.8s 1.5s ease-in-out infinite; }
+@keyframes lb-shine { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) { .lb-in, .lb-play::after { animation: none; } }

@@ -12,7 +12,6 @@ import { guide } from "@/game/guide/store";
 import { RoverHud, FlightHud } from "@/components/game/ModeHuds";
 import Result from "@/components/game/Result";
 import { Destination, Design, Launch } from "@/components/game/Design";
-import Fun from "@/components/game/Fun";
 import Closure from "@/components/game/Closure";
 import Backdrop, { SCENE_FOR } from "@/components/game/Backdrop";
 import { Report } from "@/components/game/Report";
@@ -26,7 +25,7 @@ export default function Page() {
     <main className="fixed inset-0 overflow-hidden bg-black" style={{ zoom: scale }}>
       <GameCanvas />{SCENE_FOR[screen] && <Backdrop scene={SCENE_FOR[screen]!} />}
       {screen === "boot" && <Boot />}{screen === "menu" && <Menu />}{screen === "archive" && <Archive />}{screen === "science" && <Science />}
-      {screen === "settings" && <SettingsPage />}{screen === "modes" && <Modes />}{screen === "fun" && <Fun />}{screen === "closure" && <Closure />}{screen === "manual" && <Manual />}<GuideHost />{screen === "destination" && <Destination />}{screen === "design" && <Design />}{screen === "launch" && <Launch />}{screen === "report" && <Report />}{screen === "rover" && <RoverHud />}{screen === "flight" && <FlightHud />}{(screen === "rover" || screen === "flight") && paused && <ModePause />}{screen === "briefing" && <Briefing />}
+      {screen === "settings" && <SettingsPage />}{screen === "modes" && <Modes />}{screen === "closure" && <Closure />}{screen === "manual" && <Manual />}<GuideHost />{screen === "destination" && <Destination />}{screen === "design" && <Design />}{screen === "launch" && <Launch />}{screen === "report" && <Report />}{screen === "rover" && <RoverHud />}{screen === "flight" && <FlightHud />}{(screen === "rover" || screen === "flight") && paused && <ModePause />}{screen === "briefing" && <Briefing />}
       {screen === "play" && <Hud />}{screen === "play" && paused && <Pause />}{screen === "result" && <Result />}
     </main>
   );
