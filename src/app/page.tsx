@@ -19,11 +19,11 @@ import { Archive, Science, SettingsPage, Modes, Briefing } from "@/components/ga
 
 const GameCanvas = dynamic(() => import("@/components/world/GameCanvas"), { ssr: false });
 export default function Page() {
-  const screen = useGame(s => s.screen), paused = useGame(s => s.paused), scale = useGame(s => s.settings.uiScale);
+  const screen = useGame(s => s.screen), paused = useGame(s => s.paused), scale = useGame(s => s.settings.uiScale), failed = useGame(s => s.failed);
   useEffect(() => { game.hydrate(); guide.hydrate(); }, []);
   return (
     <main className="fixed inset-0 overflow-hidden bg-black" style={{ zoom: scale }}>
-      <GameCanvas />{SCENE_FOR[screen] && <Backdrop scene={SCENE_FOR[screen]!} />}
+      <GameCanvas />{(screen === "result" ? (failed ? "failure" : "mars") : SCENE_FOR[screen]) && <Backdrop scene={(screen === "result" ? (failed ? "failure" : "mars") : SCENE_FOR[screen])!} />}
       {screen === "boot" && <Boot />}{screen === "menu" && <Menu />}{screen === "archive" && <Archive />}{screen === "science" && <Science />}
       {screen === "settings" && <SettingsPage />}{screen === "modes" && <Modes />}{screen === "closure" && <Closure />}{screen === "manual" && <Manual />}<GuideHost />{screen === "destination" && <Destination />}{screen === "design" && <Design />}{screen === "launch" && <Launch />}{screen === "report" && <Report />}{screen === "rover" && <RoverHud />}{screen === "flight" && <FlightHud />}{(screen === "rover" || screen === "flight") && paused && <ModePause />}{screen === "briefing" && <Briefing />}
       {screen === "play" && <Hud />}{screen === "play" && paused && <Pause />}{screen === "result" && <Result />}
