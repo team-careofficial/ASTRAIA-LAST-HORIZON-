@@ -124,6 +124,7 @@ export function Design() {
           <Meter label="COMMUNICATION" value={e.comms} max={100} text={`${e.comms}%`} bad={e.comms < 60} delta={dl.comms?.t} good={dl.comms?.good} why="Better antennas keep contact with Earth, but weigh more and use power." />
           <Meter label="RISK" value={e.risk} max={100} text={`${e.risk} / 100 ${e.risk < 35 ? "LOW" : e.risk < 60 ? "MEDIUM" : "HIGH"}`} bad={e.risk >= 60} delta={dl.risk?.t} good={dl.risk?.good} why="A combined score: thin margins, a tight rocket, weak comms or power, and long stays all raise it. It increases stress and trouble in the game." />
           {e.warnings.slice(0, step === 7 ? 0 : 2).map(w => <p key={w} className="text-[12.5px] text-[#ff9a86]">⚠ {w}</p>)}
+          <button onClick={() => game.go("closure")} className="gbtn w-full !py-2 !text-[11.5px]">REAL-NUMBER CLOSURE CHECK</button>
           <p className="border-t border-white/10 pt-3 text-[11.5px] leading-snug text-white/45">These numbers set your starting power, battery, comms, fuel, science and supply use in every mode. SIMULATED values.</p>
         </aside>
       </div>

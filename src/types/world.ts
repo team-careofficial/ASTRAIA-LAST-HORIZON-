@@ -13,7 +13,7 @@ export interface HistoryEntry { m: number; s: number; choice: string; tag: Tag; 
 export interface Completed { xp: number; rating: string; science: number; stress: number; picks: HistoryEntry[] }
 export interface Settings { quality: "ultra" | "high" | "medium" | "low"; master: number; music: number; sfx: number; muted: boolean; sens: number; invert: boolean; reducedMotion: boolean; colorSafe: boolean; uiScale: number; dev: boolean; seenIntro: boolean; guided: boolean }
 export interface EmgRun { id: string; node: string; idx: number }
-export type Screen = "boot" | "menu" | "archive" | "science" | "settings" | "credits" | "destination" | "design" | "launch" | "report" | "manual" | "modes" | "fun" | "rover" | "flight" | "briefing" | "play" | "result";
+export type Screen = "boot" | "menu" | "archive" | "science" | "settings" | "credits" | "destination" | "design" | "launch" | "report" | "manual" | "modes" | "fun" | "closure" | "rover" | "flight" | "briefing" | "play" | "result";
 export interface World {
   screen: Screen; paused: boolean; pausePanel: null | "objectives" | "controls" | "settings"; mission: number; step: number; selected: number;
   nearby: boolean; dist: number; dialog: DialogState | null; toast: string | null; active: number;
