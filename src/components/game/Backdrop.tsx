@@ -14,7 +14,7 @@ const SCENES = {
 export type SceneId = keyof typeof SCENES;
 export const SCENE_FOR: Partial<Record<Screen, SceneId>> = {
   menu: "mars", archive: "map", science: "storm", settings: "hangar", modes: "mars", manual: "map", credits: "mars", destination: "mars",
-  design: "hangar", closure: "control", report: "control",
+  design: "hangar", closure: "control", report: "control", greenhouse: "mars", classroom: "hangar",
 };
 
 function Dust() {

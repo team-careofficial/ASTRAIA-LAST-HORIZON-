@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { game, useGame } from "@/game/engine/store";
 import { useEx } from "@/game/explore/store";
 import { buildReport } from "@/game/engine/report";
+import { debrief } from "@/compute/advisor";
 import { MISSIONS } from "@/data/world/missions";
 import Btn from "@/components/ui/Btn";
 import { Eyebrow } from "@/components/ui/kit";
@@ -40,6 +41,7 @@ const Stat = ({ label, value, delay, on }: { label: string; value: string; delay
 export function Report() {
   const w = useGame(s => s), found = useEx(s => s.found.length), sci = useEx(s => s.science), r = buildReport(w, found, sci), [on, setOn] = useState(false), [skip, setSkip] = useState(false);
   useEffect(() => { const t = setTimeout(() => setOn(true), 900); return () => clearTimeout(t); }, []);
+  const sd = debrief({ score: r.score, science: r.science, decision: r.decision, resources: r.resources, engineering: r.engineering, crewAlive: w.crew.filter(c => c.health > 5).length, morale: w.crew.reduce((a, c) => a + c.morale, 0) / Math.max(1, w.crew.length), stress: w.crew.reduce((a, c) => a + c.stress, 0) / Math.max(1, w.crew.length), log: w.history.map(h => ({ choice: h.choice, tag: h.tag })) });
   const score = useCount(r.score, 2400, on, 2200), good = r.status === "SUCCESS", bad = r.status === "FAILED";
   return (
     <Shell title="MISSION DEBRIEF" sub={`${w.destination.toUpperCase()} EXPEDITION · REPORT`} onBack={() => game.go(w.demo ? "menu" : "archive")} flat>
@@ -64,6 +66,14 @@ export function Report() {
           <Stat label="MISSIONS COMPLETE" value={`${r.done} / ${r.total}`} delay={2800} on={on} />
         </div>
         <section className="gp mt-4 p-5" style={{ animation: on ? "fadeIn .7s 3000ms both" : undefined, opacity: on ? undefined : 0 }}>
+          <Eyebrow>SMART DEBRIEF</Eyebrow>
+          <div className="mt-3 grid gap-3 sm:grid-cols-4">{([["SCORE", r.score.toLocaleString()], ["RESOURCE EFFICIENCY", `${sd.efficiency}%`], ["SCIENTIFIC ACCURACY", `${sd.accuracy}%`], ["TEAMWORK", `${sd.teamwork}%`]] as const).map(([k, v]) => <div key={k}><p className="font-data text-[10px] tracking-[0.2em] text-white/50">{k}</p><p className="font-data text-2xl text-[#e8a45a]">{v}</p></div>)}</div>
+          <p className="mt-2 font-data text-[10.5px] text-white/40">Accuracy = 60% decision quality + 40% science. Teamwork = crew alive, morale and low stress. Efficiency = resources and engineering margin.</p>
+          <h4 className="mt-4 font-data text-[10.5px] tracking-[0.2em] text-white/55">MISTAKES TO LEARN FROM</h4>
+          <ul className="mt-2 space-y-2 text-[13.5px]">{sd.mistakes.length === 0 ? <li className="text-white/50">No critical mistakes logged.</li> : sd.mistakes.map((m, i) => <li key={i} className="border-l-2 border-[#e5533a] pl-3">{m.text}<br /><span className="text-white/55">{m.ask}</span></li>)}</ul>
+          <h4 className="mt-4 font-data text-[10.5px] tracking-[0.2em] text-white/55">COACH</h4><ul className="mt-2 space-y-1.5 text-[13.5px] text-white/80">{sd.coaching.map((c, i) => <li key={i} className="border-l-2 border-[#e8a45a] pl-3">{c}</li>)}</ul>
+        </section>
+        <section className="gp mt-4 p-5" style={{ animation: on ? "fadeIn .7s 3400ms both" : undefined, opacity: on ? undefined : 0 }}>
           <Eyebrow>MISSION TIMELINE</Eyebrow>
           <ol className="relative mt-4 max-h-64 space-y-3 overflow-auto border-l border-white/15 pl-5 text-[14px]">{r.timeline.length === 0 ? <li className="text-white/50">No decisions logged yet. Play a mission first.</li> : r.timeline.map((p, i) => (
             <li key={i} className="relative" style={{ animation: on ? `fadeIn .5s ${3200 + i * 120}ms both` : undefined }}><i className={`absolute -left-[26px] top-[7px] h-2 w-2 ${p.tag === "SUCCESS" ? "bg-[#8fbf8a]" : p.tag === "FAILURE" ? "bg-[#e5533a]" : p.tag === "RISK" ? "bg-[#e8a45a]" : "bg-[#9bb8d4]"}`} />

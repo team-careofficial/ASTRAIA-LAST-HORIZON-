@@ -5,6 +5,8 @@ import { evaluate, spareInstrumentKg, costM, budgetM, type DesignInput } from "@
 import { INSTRUMENTS, LAUNCHERS, PROPELLANTS, TARGETS, PERSEVERANCE, SIM_PROV, type Prov } from "@/data/real/missionData";
 import { STR, type Lang } from "@/data/closure/strings";
 import { runFly } from "./closureFly";
+import { adviseClosure } from "@/compute/advisor";
+import { activeChallenge, setActiveChallenge, judge, saveEntry } from "@/game/classroom/challenge";
 import { Shell } from "./Pages";
 import Btn from "@/components/ui/Btn";
 import { Eyebrow } from "@/components/ui/kit";
@@ -16,7 +18,8 @@ const KC: Record<Prov["kind"], string> = { nasa: "text-[#53CBB8] border-[#53CBB8
 const SLOTS = INSTRUMENTS.map((_, i) => 215 + i * 44);
 
 export default function Closure() {
-  const [lang, setLang] = useState<Lang>("en"), [st, setSt] = useState<St>(EDGE), [predict, setPredict] = useState(true);
+  const ch = useRef(activeChallenge()).current, [team, setTeam] = useState(""), [sub, setSub] = useState<string | null>(null);
+  const [lang, setLang] = useState<Lang>("en"), [st, setSt] = useState<St>(() => (ch ? { launcher: ch.launcher, target: ch.target, propellant: ch.propellant, bus: ch.bus, load: 6000, inst: [] } : EDGE)), [predict, setPredict] = useState(true);
   const [score, setScore] = useState({ r: 0, t: 0 }), [banner, setBanner] = useState<{ q?: string; ask?: { id: string; after: string[] }; msg?: string; good?: boolean } | null>(null);
   const [drawer, setDrawer] = useState<string | null | false>(false), [flying, setFlying] = useState(false), [flip, setFlip] = useState(false);
   const cv = useRef<HTMLCanvasElement>(null), stop = useRef<() => void>(() => {}), seen = useRef<Record<string, 1>>({});
@@ -53,6 +56,8 @@ export default function Closure() {
     let lo = 0, hi = st.bus; for (let i = 0; i < 50; i++) { const mid = (lo + hi) / 2; if (evaluate(toIn({ ...st, bus: st.bus - mid })).closes) hi = mid; else lo = mid; }
     return t("tag_fix_bus", { kg: nf(Math.ceil(hi / 10) * 10) });
   };
+  const hints = adviseClosure(toIn(st), res);
+  const submit = () => { if (!ch) return; const e = judge(ch, st.load, st.inst, team); saveEntry(ch, e); setSub(e.ok ? "Valid design submitted." : `Submitted, but not valid: ${e.reason}.`); };
   const spare = res.closes ? spareInstrumentKg(toIn(st)) : 0;
 
   const fly = () => {
@@ -79,18 +84,18 @@ export default function Closure() {
   const present = INSTRUMENTS.map((it, i) => ({ it, i })).filter(p => st.inst.includes(p.it.id));
   const lvl = Math.max(0, Math.min(1, st.load / 15000)), r = 36, hh = 2 * r * lvl;
   const mine = st.inst.reduce((s, id) => s + INSTRUMENTS.find(x => x.id === id)!.massKg, 0);
-  const chips = (list: { id: string; name: string }[], key: "launcher" | "target" | "propellant") => <div className="flex flex-wrap gap-1.5">{list.map(o => <button key={o.id} aria-pressed={st[key] === o.id} onClick={() => set({ [key]: o.id } as Partial<St>)} className={`border px-2.5 py-1 font-data text-[11.5px] transition-colors ${st[key] === o.id ? "border-[#e8a45a] bg-[#e8a45a] text-black" : "border-white/25 text-white/80 hover:border-[#e8a45a]"}`}>{o.name}</button>)}</div>;
+  const chips = (list: { id: string; name: string }[], key: "launcher" | "target" | "propellant") => <div className="flex flex-wrap gap-1.5">{list.map(o => <button key={o.id} disabled={!!ch} aria-pressed={st[key] === o.id} onClick={() => set({ [key]: o.id } as Partial<St>)} className={`border px-2.5 py-1 font-data text-[11.5px] transition-colors ${st[key] === o.id ? "border-[#e8a45a] bg-[#e8a45a] text-black" : "border-white/25 text-white/80 hover:border-[#e8a45a]"}`}>{o.name}</button>)}</div>;
   const row = (a: string, b: string, bad?: boolean, badge?: JSX.Element) => <tr className="border-b border-white/10"><td className="py-1.5 text-white/55">{a}</td><td className={`py-1.5 text-right font-data ${bad ? "text-[#FD4E54]" : ""}`}>{b}{badge && <span className="ml-2">{badge}</span>}</td></tr>;
   const seenNow = seen.current; const fresh = (id: string) => !seenNow[id]; present.forEach(p => { seenNow[p.it.id] = 1; });
   const allProv = [...LAUNCHERS, ...INSTRUMENTS, ...PROPELLANTS, ...TARGETS].map(x => ({ id: x.id, name: x.name, prov: x.prov, val: "leoKg" in x ? `${nf(x.leoKg)} kg to LEO` : "massKg" in x ? `${nf(x.massKg, 3)} kg` : "isp" in x ? `Isp ${x.isp} s` : `${nf(x.dvMs)} m/s` }))
     .concat([{ id: "sim", name: "Cost and budget", prov: SIM_PROV, val: "game balance" }, { id: "perseverance", name: "Perseverance reference", prov: PERSEVERANCE.roverKg.prov, val: "1,025 kg rover · 59 kg instruments · MMRTG 110 W" }]);
 
   return (
-    <Shell title={t("brand")} sub="REAL NUMBERS · EVERY VALUE HAS A RECEIPT" onBack={() => game.go("menu")}>
+    <Shell title={t("brand")} sub="REAL NUMBERS · EVERY VALUE HAS A RECEIPT" onBack={() => { if (ch) setActiveChallenge(null); game.go(ch ? "classroom" : "menu"); }}>
       <div className="mb-4 flex flex-wrap items-center gap-2 font-data text-[10.5px] tracking-widest">
         <span className="border border-dashed border-white/40 px-2 py-0.5 text-white/55">{t("data_badge")}</span>
-        <button onClick={() => setSt(EDGE)} className="gbtn !px-3 !py-1 !text-[11px] gbtn-main">{t("demo")}</button>
-        <button onClick={() => { setSt({ ...EDGE, bus: 3000, inst: [] }); setScore({ r: 0, t: 0 }); seen.current = {}; }} className="gbtn !px-3 !py-1 !text-[11px]">{t("reset")}</button>
+        {!ch && <button onClick={() => setSt(EDGE)} className="gbtn !px-3 !py-1 !text-[11px] gbtn-main">{t("demo")}</button>}
+        <button onClick={() => { setSt(ch ? { ...st, inst: [] } : { ...EDGE, bus: 3000, inst: [] }); setScore({ r: 0, t: 0 }); seen.current = {}; }} className="gbtn !px-3 !py-1 !text-[11px]">{t("reset")}</button>
         <button onClick={() => setDrawer(null)} className="gbtn !px-3 !py-1 !text-[11px]"><Receipt size={12} className="mr-1 inline" />{t("receipts")}</button>
         <span className="ml-auto flex">{(["en", "bn"] as const).map(l => <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)} className={`border border-white/30 px-2.5 py-1 ${lang === l ? "bg-[#e8a45a] text-black" : "text-white/70"}`}>{l === "en" ? "EN" : "বাংলা"}</button>)}</span>
       </div>
@@ -99,7 +104,7 @@ export default function Closure() {
           <div><Eyebrow>{t("launcher")}</Eyebrow><div className="mt-2">{chips(LAUNCHERS, "launcher")}</div></div>
           <div><Eyebrow>{t("target")}</Eyebrow><div className="mt-2">{chips(TARGETS, "target")}</div></div>
           <div><Eyebrow>{t("propellant")}</Eyebrow><div className="mt-2">{chips(PROPELLANTS, "propellant")}</div></div>
-          <label className="block"><span className="flex justify-between font-data text-[10.5px] tracking-[0.2em] text-[#e8a45a]"><span>{t("bus")}</span><b className="text-white">{nf(st.bus)} {t("kg")}</b></span><input type="range" min={500} max={8000} step={10} value={st.bus} onChange={e => set({ bus: +e.target.value })} className="mt-1 w-full accent-[#944921]" /></label>
+          <label className="block"><span className="flex justify-between font-data text-[10.5px] tracking-[0.2em] text-[#e8a45a]"><span>{t("bus")}</span><b className="text-white">{nf(st.bus)} {t("kg")}</b></span><input type="range" min={500} max={8000} step={10} value={st.bus} disabled={!!ch} onChange={e => set({ bus: +e.target.value })} className="mt-1 w-full accent-[#944921]" /></label>
           <label className="block"><span className="flex justify-between font-data text-[10.5px] tracking-[0.2em] text-[#e8a45a]"><span>{t("load")}</span><b className="text-white">{nf(st.load)} {t("kg")}</b></span><input type="range" min={0} max={15000} step={50} value={st.load} onChange={e => set({ load: +e.target.value })} className="mt-1 w-full accent-[#944921]" /></label>
           <div>
             <div className="flex items-center justify-between"><Eyebrow>{t("instruments")}</Eyebrow><button aria-pressed={predict} onClick={() => setPredict(!predict)} className="font-data text-[10px] tracking-widest text-white/55">{t("predict")} · <b className={predict ? "text-[#53CBB8]" : ""}>{predict ? t("predict_on") : t("predict_off")}</b></button></div>
@@ -142,6 +147,9 @@ export default function Closure() {
           <div className="relative bg-[#e9dcc4] py-3 pl-6 pr-4 text-[#2a1a10]" style={{ clipPath: "polygon(0 0,100% 0,100% 100%,14px 100%,0 calc(100% - 14px))" }}>
             <span className="absolute left-2 top-3 h-2 w-2 rounded-full bg-[#25130B]" /><h3 className="font-display text-sm tracking-[0.24em] text-[#652E15]">{t("tag_title")}</h3>
             <p className="text-[13.5px]">{res.closes ? t("tag_ok", { kg: nf(spare, 1) }) : fix()}</p></div>
+          <div className="gp p-4"><Eyebrow>MISSION ADVISOR</Eyebrow><ul className="mt-2 space-y-1.5 text-[13.5px] text-white/80">{hints.map(h => <li key={h.id} className="border-l-2 border-[#e8a45a] pl-3">{h.text}</li>)}</ul><p className="mt-2 font-data text-[10px] tracking-widest text-white/40">HINTS ONLY · YOU DECIDE · NO AI MODEL, SAME DESIGN GIVES THE SAME HINTS</p></div>
+          {ch && <div className="gp space-y-2 p-4"><Eyebrow>CLASSROOM · {ch.name.toUpperCase()}</Eyebrow><p className="text-[13px] text-white/70">Budget {ch.budgetM} M$ · at least {ch.minInstruments} instruments · lowest launch mass with a safe margin wins.</p>
+            <div className="flex flex-wrap items-center gap-2"><input value={team} onChange={e => setTeam(e.target.value)} maxLength={20} placeholder="Team name" className="border border-white/25 bg-black/40 px-3 py-1.5 text-[13px]" /><Btn main onClick={submit}>SUBMIT DESIGN</Btn><Btn onClick={() => { setActiveChallenge(null); game.go("classroom"); }}>LEADERBOARD</Btn></div>{sub && <p className="text-[13px] text-[#e8a45a]">{sub}</p>}</div>}
           <div className="flex flex-wrap items-center gap-4"><Btn main icon={<Rocket size={16} />} onClick={fly}>{t("fly")}</Btn><span className="font-data text-[11px] tracking-widest text-white/50">{t("score")} <b className="text-white">{score.t ? `${nf(score.r)} / ${nf(score.t)}` : "—"}</b></span></div>
           <div className="grid gap-5 md:grid-cols-2">
             <div className="gp p-4"><Eyebrow>{t("ledger")}</Eyebrow><table className="mt-2 w-full text-[13px]"><tbody>

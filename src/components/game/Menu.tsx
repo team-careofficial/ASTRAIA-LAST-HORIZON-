@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Archive, BookOpen, Clapperboard, FlaskConical, Gauge, Play, Plus, Settings, Rocket } from "lucide-react";
+import { Archive, BookOpen, Clapperboard, FlaskConical, Gauge, Play, Plus, Settings, Rocket, Sprout, Users } from "lucide-react";
 import { sfx } from "@/lib/utils/audio";
 import { game, useGame } from "@/game/engine/store";
 import { MISSIONS } from "@/data/world/missions";
@@ -51,12 +51,14 @@ export default function Menu() {
             {canContinue ? <Play size={26} fill="currentColor" /> : <Rocket size={26} />}{playLabel}</button>
         </section>
         {/* tiles */}
-        <nav aria-label="Main menu" className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+        <nav aria-label="Main menu" className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-7">
           <Tile i={0} Icon={Plus} title="NEW MISSION" sub="DESIGN · LAUNCH" onClick={() => game.go("destination")} />
           <Tile i={1} Icon={Gauge} title="MISSION CLOSURE" sub="REAL NASA NUMBERS" badge="NEW" onClick={() => game.go("closure")} />
-          <Tile i={2} Icon={Archive} title="ARCHIVE" sub="PAST MISSIONS" onClick={() => game.go("archive")} />
-          <Tile i={3} Icon={FlaskConical} title="SCIENCE" sub="REAL vs SIMULATED" onClick={() => game.go("science")} />
-          <Tile i={4} Icon={BookOpen} title="MANUAL" sub="HOW IT WORKS" onClick={() => game.go("manual")} />
+          <Tile i={2} Icon={Sprout} title="GREENHOUSE" sub="SUN · DUST · FOOD" badge="NEW" onClick={() => game.go("greenhouse")} />
+          <Tile i={3} Icon={Users} title="CLASSROOM" sub="TEACHER · TEAMS" badge="NEW" onClick={() => game.go("classroom")} />
+          <Tile i={4} Icon={Archive} title="ARCHIVE" sub="PAST MISSIONS" onClick={() => game.go("archive")} />
+          <Tile i={5} Icon={FlaskConical} title="SCIENCE" sub="REAL vs SIMULATED" onClick={() => game.go("science")} />
+          <Tile i={6} Icon={BookOpen} title="MANUAL" sub="HOW IT WORKS" onClick={() => game.go("manual")} />
         </nav>
         <footer className="lb-in flex flex-wrap items-center justify-between gap-3 font-data text-[10px] tracking-[0.2em] text-white/45" style={{ animationDelay: "1s" }}>
           <button onClick={game.startDemo} className="flex items-center gap-2 transition-colors hover:text-[#e8a45a]"><Clapperboard size={13} />QUICK DEMO</button>
