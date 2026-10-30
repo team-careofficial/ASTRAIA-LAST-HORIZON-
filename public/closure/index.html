@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASTRAIA · Mission Closure</title>
+<meta name="description" content="Design a Moon or Mars mission with real NASA numbers. Does it close? Every value has a receipt.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Hind+Siliguri:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="dust" aria-hidden="true"></canvas><div class="shafts" aria-hidden="true"></div><div class="vig" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="back" href="/" data-i18n="back">← ASTRAIA</a>
+  <h1><span class="wm">ASTRAIA</span><i></i><span data-i18n="brand">MISSION CLOSURE</span></h1>
+  <div class="top-r">
+    <span class="badge-data" data-i18n="data_badge"></span>
+    <button id="btn-receipts" class="ink" data-i18n="receipts">RECEIPTS</button>
+    <div class="lang" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="bn" aria-pressed="false">বাংলা</button></div>
+  </div>
+</header>
+
+<main class="grid">
+  <section class="rack" aria-label="Design controls">
+    <div class="rk-actions">
+      <button id="btn-demo" class="ink amber" data-i18n="demo">EDGE DEMO</button>
+      <button id="btn-reset" class="ink" data-i18n="reset">RESET</button>
+    </div>
+    <fieldset><legend data-i18n="launcher">LAUNCH VEHICLE</legend><div id="f-launcher" class="chips"></div></fieldset>
+    <fieldset><legend data-i18n="target">DESTINATION</legend><div id="f-target" class="chips"></div></fieldset>
+    <fieldset><legend data-i18n="propellant">PROPELLANT</legend><div id="f-prop" class="chips"></div></fieldset>
+    <label class="sl"><span data-i18n="bus">BUS DRY MASS</span><output id="o-bus"></output><input id="r-bus" type="range" min="500" max="8000" step="10"></label>
+    <label class="sl"><span data-i18n="load">PROPELLANT LOAD</span><output id="o-load"></output><input id="r-load" type="range" min="0" max="15000" step="50"></label>
+    <fieldset class="inst"><legend><span data-i18n="instruments">INSTRUMENTS</span><button id="btn-predict" class="mini" aria-pressed="true"><span data-i18n="predict">PREDICT FIRST</span> · <b id="pred-state"></b></button></legend><div id="f-inst"></div></fieldset>
+  </section>
+
+  <section class="stage" aria-label="Spacecraft hologram">
+    <div id="banner" class="banner" role="status" aria-live="polite" hidden></div>
+    <svg id="holo" viewBox="0 0 900 460" role="img" aria-label="Wireframe spacecraft with instrument labels">
+      <defs>
+        <clipPath id="ct1"><circle cx="315" cy="282" r="36"/></clipPath>
+        <clipPath id="ct2"><circle cx="405" cy="282" r="36"/></clipPath>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <g id="g-ship" class="wire" filter="url(#glow)">
+        <rect class="draw" pathLength="1" x="200" y="210" width="320" height="14"/>
+        <polygon class="draw" pathLength="1" points="230,224 490,224 450,330 270,330"/>
+        <circle class="draw" pathLength="1" cx="315" cy="282" r="36"/><circle class="draw" pathLength="1" cx="405" cy="282" r="36"/>
+        <polygon class="draw" pathLength="1" points="345,330 375,330 398,386 322,386"/>
+        <path class="draw" pathLength="1" d="M270 330 L212 402 H190 M450 330 L508 402 H530"/>
+        <path class="draw" pathLength="1" d="M300 224 V250 M420 224 V250 M360 224 V330" stroke-dasharray="3 5"/>
+      </g>
+      <g id="g-fill"><rect id="fill1" x="270" y="300" width="90" height="40" clip-path="url(#ct1)"/><rect id="fill2" x="360" y="300" width="90" height="40" clip-path="url(#ct2)"/></g>
+      <g id="g-inst"></g>
+      <g id="g-labels"></g>
+      <text id="t-fill" class="cap" x="360" y="425" text-anchor="middle"></text>
+    </svg>
+    <p class="pad" data-i18n="pad_note"></p>
+  </section>
+
+  <section class="console" aria-label="Verdict">
+    <div class="dials">
+      <figure><svg id="dial-dv" viewBox="0 0 160 110" aria-hidden="true"></svg><figcaption><span data-i18n="dial_dv">DELTA-V MARGIN</span><b id="v-dv"></b></figcaption></figure>
+      <figure><svg id="dial-mass" viewBox="0 0 160 110" aria-hidden="true"></svg><figcaption><span data-i18n="dial_mass">MASS MARGIN</span><b id="v-mass"></b></figcaption></figure>
+    </div>
+    <div id="stamp" class="stamp" role="status" aria-live="polite"></div>
+    <div class="tag" id="tag"><h3 data-i18n="tag_title">FIX TAG</h3><p id="tag-text"></p></div>
+    <div class="switch-row">
+      <button id="sw-remove" class="sw" aria-label="remove"><span class="knob"></span></button><span id="sw-label" data-i18n="remove">REMOVE LAST INSTRUMENT</span>
+    </div>
+    <button id="btn-fly" class="fly" data-i18n="fly">FLY THIS DESIGN</button>
+    <div class="score"><span data-i18n="score">PREDICTIONS</span> <b id="score"></b></div>
+  </section>
+
+  <section class="paper ledger" aria-label="Ledger">
+    <h2 data-i18n="ledger">LEDGER</h2><table id="tbl-ledger"></table><p id="budget-note" class="bnote"></p>
+  </section>
+  <section class="paper report" aria-label="Mission report">
+    <h2 data-i18n="report">MISSION REPORT</h2><table id="tbl-report"></table>
+    <p class="fine" data-i18n="rep_note1"></p><p class="fine" data-i18n="rep_note2"></p>
+  </section>
+</main>
+
+<aside id="drawer" class="drawer" aria-hidden="true" aria-label="Receipts">
+  <div class="dr-head"><h2 data-i18n="drawer_title">RECEIPTS</h2><button id="dr-close" class="ink" data-i18n="close">CLOSE</button></div>
+  <div class="dr-legend" id="dr-legend"></div>
+  <div id="dr-body"></div>
+</aside>
+
+<div id="fly" class="flyov" hidden>
+  <canvas id="fly-cv"></canvas>
+  <div class="fly-cap"><p id="fly-text"></p><button id="fly-close" class="ink amber" data-i18n="fly_close">BACK TO DESIGN</button></div>
+</div>
+
+<script src="engine.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
