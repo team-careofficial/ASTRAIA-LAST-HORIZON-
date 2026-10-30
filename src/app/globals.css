@@ -127,3 +127,8 @@ input[type=range] { accent-color: var(--amber); }
 .gbtn-main { background: linear-gradient(180deg, #f0b673, #e8a45a); color: #120a05; border-color: #e8a45a; box-shadow: 0 0 28px rgba(232,164,90,.28); font-weight: 800; }
 .gbtn-main:hover:not(:disabled) { background: linear-gradient(180deg, #f6c488, #eeb06b); color: #000; box-shadow: 0 0 44px rgba(232,164,90,.5); }
 .tag { border-radius: 1px; background: rgba(0,0,0,.35); }
+
+/* camera tilts up to follow the rocket into the sky */
+.launch-tilt { object-position: 50% 62%; animation: launch-tilt 14s cubic-bezier(.45,0,.3,1) forwards; }
+@keyframes launch-tilt { from { object-position: 50% 62%; transform: scale(1.04); } to { object-position: 50% 6%; transform: scale(1.18); } }
+@media (prefers-reduced-motion: reduce) { .launch-tilt { animation: none; object-position: 50% 22%; } }
