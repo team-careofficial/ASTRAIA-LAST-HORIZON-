@@ -42,7 +42,7 @@ export default function Menu() {
       </div>
       {/* top-right: logo and settings */}
       <div className="lob-t absolute right-2 top-2 flex items-center gap-3 sm:right-4 sm:top-3" style={{ animationDelay: ".15s" }}>
-        <div className="text-right leading-none"><p className="font-display text-[15px] tracking-[0.22em] sm:text-[18px]" style={{ textShadow: "0 2px 12px rgba(0,0,0,.7)" }}>ASTRAIA</p><p className="mt-1 font-ui text-[8.5px] font-semibold tracking-[0.5em] text-[#e8a45a]">LAST HORIZON</p></div>
+        <div className="text-right leading-none"><p className="font-display text-[15px] tracking-[0.22em] sm:text-[18px]" style={{ textShadow: "0 2px 12px rgba(0,0,0,.7)" }}>ASTRAIA</p><p className="mt-1 font-ui text-[8.5px] font-semibold tracking-[0.5em] text-[#e8a45a]">LAST HORIZON</p><p className="mt-1.5 hidden font-data text-[8px] tracking-[0.2em] text-white/60 sm:block">NASA SPACE APPS · CHALLENGE 13 · SPACE MISSION DESIGN GAME</p></div>
         <button aria-label="Settings" onClick={() => { sfx("click"); game.go("settings"); }} className="lob-btn grid h-9 w-9 place-items-center transition-colors hover:text-[#e8a45a]"><Settings size={17} /></button>
       </div>
       {/* left: short button stack */}

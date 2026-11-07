@@ -1,30 +1,50 @@
 # ASTRAIA: LAST HORIZON
 
-A Moon and Mars mission design and exploration game for the NASA Space Apps Challenge (Team C.A.R.E).
+**NASA Space Apps Challenge 2026, Bangladesh · Challenge 13: Space Mission Design Game**
+Team OMNITRIX (Team C.A.R.E). Live game: https://astraia-last-horizon.vercel.app/
 
+A browser game where you design a Moon or Mars mission, check whether it really closes with real NASA numbers, then drive, walk and fly it. It runs on phones and laptops, in English and Bangla (Closure screen).
+
+## Team
+| Member | Role |
+| --- | --- |
+| Debojit Saha Jit | Frontend Developer: interface, visuals, player experience |
+| Sabit Islam Efty | Backend Developer: architecture and supporting systems |
+| Shafayet Biswas | Researcher and Game Designer |
+
+## The problem
+Mission design is hard to learn because the numbers (launch capacity, instrument mass, delta-v) are scattered and rarely tested against each other. Students guess, and nothing tells them why a design fails.
+
+## What the game does
+- **Closure** (the core): pick a launcher, target and engine, add real Perseverance instruments, and the rocket equation says whether the mission closes. You predict first; the game shows the result and the smallest fix. Every value has a receipt (dataset, NASA page, date read).
+- **Judge Demo**: a 90-second guided run (build, close, predict, fail, fix, launch) with the NASA data named on screen.
+- **Missions, Rover and Flight** modes: walk the Mars base, drive a rover (terrain, dust, power) and fly a spacecraft. Touch controls on phones.
+- **Greenhouse**: grow food on Mars with real sunlight, dust storms and power limits.
+- **Classroom**: a teacher shares a challenge by link; teams compete for the lightest valid design.
+- **Data & Sources** screen: counts of real, derived, other-agency, textbook, unverified and simulated values, the source links, and validation checks.
+
+## NASA data used
+All listed in [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) and inside the game (Lobby > DATA).
+- NASA Launch Services Program fact sheet (launcher capacity to LEO)
+- NASA Perseverance science instruments page and JPL Mars 2020 launch quick facts (instrument and rover masses, power)
+- NASA NSSDC Mars and Moon fact sheets (orbits, gravity, pressure, solar irradiance)
+- NASA NTRS reports 20180005485 and 20120003308 as independent cross-checks of engine Isp and Mars delta-v
+- Other agency: ISRO Mars Orbiter Mission spacecraft mass (PSLV-C25 launch publication)
+
+## Honesty about data
+No live NASA feed is used. Values are copied from the pages above with the date they were read. Each is tagged NASA, DERIVED, OTHER AGENCY, TEXTBOOK, UNVERIFIED or SIM (game balance). `src/compute/validate.ts` re-derives the Moon and Mars burns from a 400 km parking orbit and the tests check the game values stay slightly above them. Cost and budget are game balance, not real prices. See `docs/AI_USE.md` for how AI was used.
+
+## Run it
 ```
 npm install
 npm run dev      # http://localhost:3000
 npm run build
+bash scripts/run-tests.sh   # deterministic rule-engine tests
 ```
+Everything runs in the browser: no server routes, no database. Progress is saved in localStorage.
 
-## What is in the game
-- **Cinematic main menu** over a live 3D outpost (habitat, rover, two astronauts, lander, dish, solar field, wheel tracks, footprints). The Moon version appears when you hover or choose the Moon.
-- **Destination Select**: Moon vs Mars, with distance, duration, gravity, comms delay, difficulty, hazards and science potential. Each value is tagged REAL (NASA fact sheet) or SIMULATED (game rating).
-- **Mission Design in 8 steps**: Objective, Destination, Spacecraft, Launch Vehicle, Payload, Systems, Crew, Review. Every option shows its effect, WHY? and LEARN MORE. The readout shows Mass, Cost, Power margin, Fuel margin, Science, Communication and Risk live.
-- **Design really changes gameplay**: starting battery, power, comms, fuel, science multiplier, supply use, storm resilience, cold protection, stress and rover range all come from `src/data/design/options.ts` (`designMods`).
-- **Three modes**: Missions on foot (Mars campaign, 5 missions), Rover Expedition, Spacecraft Flight.
-- **Rover**: third-person and cockpit view (V), terrain types (packed soil, loose sand, rocky ground, steep slope) that change speed, grip, shaking and dust, wheel tracks, dust plume, battery/solar/comms, science scanner, Earth uplink.
-- **Physical emergencies**: an alarm sends the crew to real stations in the base (inspect, repair, verify). Power, air or the link keep dropping until the procedure is finished.
-- **Mission Manual and contextual Guide** with REAL / CONCEPT / SIMULATED labels and Field Notes.
-- **Animated Mission Debrief** with ending, score, science, engineering, resources, decisions, discoveries, critical events and timeline.
-- **Graphics**: Low / Medium / High / Ultra and Auto-detect. Procedural models and textures need no downloads.
+## Tech
+Next.js 14, TypeScript, React Three Fiber, Tailwind CSS. The closure engine is plain TypeScript (`src/compute`) with no randomness, so the same design always gives the same answer.
 
-## Honesty about data
-The game does not use live NASA data sets. Facts labelled REAL come from NASA fact sheets listed in `src/data/knowledge/sources.ts`. Everything else is a labelled simulation.
-
-## Real 3D models (optional)
-Drop GLB files into `public/models/` (see the README there): `astronaut.glb`, `rover.glb`, `spaceship.glb`, `habitat.glb`, `lander.glb`. Missing files fall back to the built-in procedural models, so the game never breaks.
-
-## Design system
-Fonts: Michroma (display), Barlow Semi Condensed (UI), JetBrains Mono (telemetry). Palette: graphite, warm Mars, lunar gray, off-white, amber and a restrained technical blue. Tokens are in `src/app/globals.css`.
+## Licence and credits
+Apache-2.0 (see `LICENSE`). Third-party assets and fonts: `docs/CREDITS.md`. NASA does not endorse this project.

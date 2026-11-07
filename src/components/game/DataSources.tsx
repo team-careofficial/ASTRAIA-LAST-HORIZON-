@@ -59,6 +59,10 @@ export default function DataSources() {
             <div key={r.name} className="px-3 py-2.5 text-[13px]"><div className="flex items-baseline justify-between gap-3"><span>{r.name}</span><span className="flex items-center gap-2 font-data text-[12px]">{r.value}<Tag k={r.prov.kind} /></span></div>
               <p className="mt-1 text-[11.5px] leading-snug text-white/50">{r.prov.dataset}{r.prov.note ? ` · ${r.prov.note}` : ""}{r.prov.url && <> · <a href={r.prov.url} target="_blank" rel="noreferrer" className="underline decoration-[#e8a45a]/60 underline-offset-2 hover:text-[#e8a45a]">source</a></>}</p>
               {r.prov.xcheck && <p className="mt-1 text-[11.5px] leading-snug text-[#7FD6E8]">NASA cross-check: {r.prov.xcheck.text} · <a href={r.prov.xcheck.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">source</a></p>}</div>))}</div></details>))}</div>
+      <h2 className="mb-2 mt-8 font-ui text-sm font-bold tracking-[0.2em] text-[#e8a45a]">ABOUT THE PROJECT</h2>
+      <div className="gp p-4 text-[13.5px] leading-snug text-white/80"><p><b className="text-white">ASTRAIA: LAST HORIZON</b> · NASA Space Apps Challenge 2026, Bangladesh · Challenge 13: Space Mission Design Game</p>
+        <p className="mt-2"><b className="text-white">TEAM OMNITRIX</b> (Team C.A.R.E): Debojit Saha Jit, Frontend Developer. Sabit Islam Efty, Backend Developer. Shafayet Biswas, Researcher and Game Designer.</p>
+        <p className="mt-2 text-white/60">Open source under Apache-2.0: github.com/team-careofficial/ASTRAIA-LAST-HORIZON-</p></div>
       <p className="mt-6 max-w-3xl text-[12.5px] leading-snug text-white/50">Honest limits: ASTRAIA does not pull a live NASA feed. Mars and Moon facts are copied from the NASA NSSDC fact sheets (Mars sheet updated 19 May 2025, Moon sheet 11 January 2024). Cost and budget are game balance, not real prices.</p>
     </Shell>
   );
