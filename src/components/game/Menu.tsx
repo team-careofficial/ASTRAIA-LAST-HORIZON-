@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Archive, BookOpen, Clapperboard, FlaskConical, Gauge, Play, Settings, Rocket, Sprout, Users, ChevronRight } from "lucide-react";
+import { Database, Archive, BookOpen, Clapperboard, FlaskConical, Gauge, Play, Settings, Rocket, Sprout, Users, ChevronRight } from "lucide-react";
 import { sfx } from "@/lib/utils/audio";
 import { game, useGame } from "@/game/engine/store";
 import { MISSIONS } from "@/data/world/missions";
@@ -60,7 +60,7 @@ export default function Menu() {
       </div>
       {/* bottom-left: tabs */}
       <div className="lob-b lob-tabs absolute bottom-2 left-2 flex sm:bottom-3 sm:left-4" style={{ animationDelay: ".45s" }}>
-        <Tab Icon={Archive} label="ARCHIVE" onClick={() => game.go("archive")} /><Tab Icon={FlaskConical} label="SCIENCE" onClick={() => game.go("science")} /><Tab Icon={BookOpen} label="MANUAL" onClick={() => game.go("manual")} />
+        <Tab Icon={Archive} label="ARCHIVE" onClick={() => game.go("archive")} /><Tab Icon={FlaskConical} label="SCIENCE" onClick={() => game.go("science")} /><Tab Icon={BookOpen} label="MANUAL" onClick={() => game.go("manual")} /><Tab Icon={Database} label="DATA" onClick={() => game.go("sources")} />
       </div>
       {/* bottom-right: mode plate and START */}
       <div className="absolute bottom-2 right-2 flex w-[15rem] flex-col items-stretch gap-1.5 sm:bottom-3 sm:right-4 sm:w-[19rem]">

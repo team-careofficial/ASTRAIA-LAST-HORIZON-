@@ -230,7 +230,7 @@
       if (x.id === focusId) setTimeout(function () { c.scrollIntoView({ block: "center" }); }, 460);
     });
     var lg = $("#dr-legend"); lg.innerHTML = "";
-    ["nasa", "derived", "textbook", "unverified", "sim"].forEach(function (k) { lg.appendChild(el("div", { text: t("k_" + k) + " — " + t("k_" + k + "_d") })); });
+    ["nasa", "derived", "agency", "textbook", "unverified", "sim"].forEach(function (k) { lg.appendChild(el("div", { text: t("k_" + k) + " — " + t("k_" + k + "_d") })); });
     var d = $("#drawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false"); $("#dr-close").focus();
   }
   function closeDrawer() { var d = $("#drawer"); d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); }

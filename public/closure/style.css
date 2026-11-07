@@ -42,7 +42,7 @@ fieldset{border:0;margin:0;padding:0}legend{font:600 13px var(--f-head);letter-s
 .irow .m{color:var(--dust)}.irow[aria-pressed=true] .m{color:var(--light)}
 .k{font-size:9px;letter-spacing:.1em;padding:1px 5px;border:1px solid;cursor:pointer;background:none}
 .k-nasa{color:var(--ok);border-color:var(--ok)}.k-derived{color:var(--cyan);border-color:var(--cyan)}.k-textbook{color:var(--light);border-color:var(--light)}
-.k-unverified{color:var(--warn);border-color:var(--warn);border-style:dashed}.k-sim{color:var(--dust);border-color:var(--dust);border-style:dotted}
+.k-agency{color:#B9A6FF;border-color:#B9A6FF}.k-unverified{color:var(--warn);border-color:var(--warn);border-style:dashed}.k-sim{color:var(--dust);border-color:var(--dust);border-style:dotted}
 .stage{position:relative;min-height:420px;border:1px solid rgba(36,58,76,.9);background:linear-gradient(180deg,rgba(14,24,32,.82),rgba(20,16,12,.7));box-shadow:inset 0 0 80px rgba(0,0,0,.6)}
 #holo{width:100%;height:auto;display:block}
 .wire *{fill:none;stroke:var(--cyan);stroke-width:1.2}

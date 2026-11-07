@@ -5,11 +5,11 @@ export interface MarsSnapshot {
 }
 export interface MarsDataProvider { getSnapshot(): Promise<MarsSnapshot> }
 
-/** Static approximate reference values. NOT a live NASA feed. */
+/** A saved copy of values from the NASA NSSDC Mars Fact Sheet (page updated 19 May 2025). NOT a live NASA feed. */
 export class MockMarsDataProvider implements MarsDataProvider {
   async getSnapshot(): Promise<MarsSnapshot> {
-    return { source: "mock", label: "Approximate reference values (offline fallback, not live NASA data)",
-      avgSurfaceTempC: -63, surfacePressurePa: 610, gravityMs2: 3.71, solDurationHours: 24.66 };
+    return { source: "mock", label: "Snapshot of NASA Mars Fact Sheet (19 May 2025), not a live feed",
+      avgSurfaceTempC: -59, surfacePressurePa: 636, gravityMs2: 3.73, solDurationHours: 24.66 };
   }
 }
 // Phase 2: implement NasaMarsDataProvider here (e.g. InSight weather or Mars Rover Photos via NASA Open APIs).

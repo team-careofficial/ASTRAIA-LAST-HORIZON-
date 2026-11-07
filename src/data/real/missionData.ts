@@ -4,10 +4,12 @@
  *  - "nasa"     : value stated on a NASA page (url + retrieved date)
  *  - "derived"  : computed by us from NASA values (formula in note)
  *  - "textbook" : standard engineering figure, NOT yet checked against a NASA/NTRS page
+ *  - "agency"   : stated by another space agency (for example ISRO), with its own document as the source
  *  - "unverified": needs a source before the demo; the UI must show it as such
  */
-export type ProvKind = "nasa" | "derived" | "textbook" | "unverified" | "sim";
-export interface Prov { kind: ProvKind; dataset: string; url?: string; retrieved?: string; note?: string }
+export type ProvKind = "nasa" | "derived" | "agency" | "textbook" | "unverified" | "sim";
+/** xcheck = an independent number found later that we compare against (it does not change the game value). */
+export interface Prov { kind: ProvKind; dataset: string; url?: string; retrieved?: string; note?: string; xcheck?: { text: string; url: string } }
 
 export interface Launcher { id: string; name: string; leoKg: number; prov: Prov }
 export interface Instrument { id: string; name: string; massKg: number; powerW?: number; prov: Prov }
@@ -53,15 +55,19 @@ export const PERSEVERANCE = {
 
 /** Typical engine performance. Not yet checked against a NASA page: shown as TEXTBOOK in the receipts drawer. */
 export const PROPELLANTS: Propellant[] = [
-  { id: "hydrazine", name: "Hydrazine monopropellant", isp: 220, prov: { kind: "textbook", dataset: "typical monoprop Isp", note: "find NTRS citation" } },
-  { id: "bipro", name: "Storable bipropellant", isp: 320, prov: { kind: "textbook", dataset: "typical NTO/MMH Isp", note: "find NTRS citation" } },
-  { id: "lox_ch4", name: "Methane / liquid oxygen", isp: 360, prov: { kind: "textbook", dataset: "typical LOX/CH4 Isp", note: "find NTRS citation" } },
+  { id: "hydrazine", name: "Hydrazine monopropellant", isp: 220, prov: { kind: "textbook", dataset: "typical monoprop Isp", note: "Game value 220 s. NASA cross-check below is higher, so the game is conservative.", xcheck: { text: "NASA NTRS In-Space Chemical Propulsion Roadmap: spacecraft RCS near 228 s, lander engines 238 s", url: "https://ntrs.nasa.gov/api/citations/20180005485/downloads/20180005485.pdf" } } },
+  { id: "bipro", name: "Storable bipropellant", isp: 320, prov: { kind: "textbook", dataset: "typical NTO/MMH Isp", note: "Game value 320 s. NASA cross-check is for NTO/hydrazine, a close relative, so the game is slightly conservative.", xcheck: { text: "NASA NTRS In-Space Chemical Propulsion Roadmap: 326 s for a 450 N planetary main engine (NTO/hydrazine)", url: "https://ntrs.nasa.gov/api/citations/20180005485/downloads/20180005485.pdf" } } },
+  { id: "lox_ch4", name: "Methane / liquid oxygen", isp: 360, prov: { kind: "textbook", dataset: "typical LOX/CH4 Isp", note: "No NASA figure found yet for LOX/methane. Still textbook." } },
 ];
 
 /** Delta-v the CRAFT must supply after LEO release (transfer only; landing/insertion budget added separately). */
 export const TARGETS: Target[] = [
-  { id: "moon", name: "Moon transfer (TLI)", dvMs: 3130, prov: { kind: "textbook", dataset: "LEO->TLI delta-v", note: "verify against an NTRS source" } },
-  { id: "mars", name: "Mars transfer (TMI)", dvMs: 3600, prov: { kind: "textbook", dataset: "LEO->TMI delta-v", note: "verify against an NTRS source" } },
+  { id: "moon", name: "Moon transfer (TLI)", dvMs: 3130, prov: { kind: "textbook", dataset: "LEO->TLI delta-v", note: "We re-computed this from orbital mechanics (see Validation): 3,082 m/s for a 400 km parking orbit. The game uses 3,130 m/s, about 1.6% higher, so it keeps a small margin." } },
+  { id: "mars", name: "Mars transfer (TMI)", dvMs: 3600, prov: { kind: "textbook", dataset: "LEO->TMI delta-v", note: "We re-computed this from NASA orbit data (see Validation): 3,569 m/s for a 400 km parking orbit. The game uses 3,600 m/s, about 0.9% higher.", xcheck: { text: "NASA NTRS ESAS-derived Earth Departure Stage study sizes for a maximum TMI delta-v of 4 km/s (a heavier, human-class case)", url: "https://ntrs.nasa.gov/api/citations/20120003308/downloads/20120003308.pdf" } } },
+];
+/** Reference mission from another agency, so the game does not rest on NASA numbers alone. */
+export const AGENCY_REFS: { id: string; name: string; value: string; prov: Prov }[] = [
+  { id: "isro-mom", name: "ISRO Mars Orbiter Mission spacecraft", value: "1,337 kg", prov: { kind: "agency", dataset: "ISRO PSLV-C25 launch publication", url: "https://new1.isro.gov.in/media_isro/pdf/Missions/PSLVC25/publication_PSLVC25.pdf", retrieved: "2026-11-07", note: "Spacecraft mass as printed by ISRO. The same page says PSLV can lift 1,750 kg class satellites to a 600 km sun-synchronous orbit." } },
 ];
 export const G0 = 9.80665; // standard gravity, m/s^2 (exact by definition)
 

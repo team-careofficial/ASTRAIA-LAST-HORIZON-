@@ -14,7 +14,7 @@ import { Eyebrow } from "@/components/ui/kit";
 /** Mission Closure: the real-number check. Rocket equation, NASA-sourced masses, a receipt for every value. */
 const EDGE = { launcher: "atlas5", target: "mars", propellant: "bipro", bus: 2764, load: 6000, inst: ["mastcamz", "meda", "supercam"] };
 type St = typeof EDGE;
-const KC: Record<Prov["kind"], string> = { nasa: "text-[#53CBB8] border-[#53CBB8]", derived: "text-[#7FD6E8] border-[#7FD6E8]", textbook: "text-[#DBA671] border-[#DBA671]", unverified: "text-[#FD4E54] border-[#FD4E54] border-dashed", sim: "text-white/50 border-white/40 border-dotted" };
+const KC: Record<Prov["kind"], string> = { nasa: "text-[#53CBB8] border-[#53CBB8]", derived: "text-[#7FD6E8] border-[#7FD6E8]", agency: "text-[#B9A6FF] border-[#B9A6FF]", textbook: "text-[#DBA671] border-[#DBA671]", unverified: "text-[#FD4E54] border-[#FD4E54] border-dashed", sim: "text-white/50 border-white/40 border-dotted" };
 const SLOTS = INSTRUMENTS.map((_, i) => 215 + i * 44);
 
 export default function Closure() {

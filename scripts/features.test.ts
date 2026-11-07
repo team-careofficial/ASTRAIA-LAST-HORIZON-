@@ -2,6 +2,8 @@ import { runSol, newGh, GH } from "../src/compute/greenhouse";
 import { solarWhPerSol } from "../src/compute/solar";
 import { adviseClosure, debrief } from "../src/compute/advisor";
 import { evaluate } from "../src/compute/closure";
+import { transferChecks, perseveranceMassGap } from "../src/compute/validate";
+import { MARS_SOLAR } from "../src/data/real/solar";
 import { encode, decode, judge, rank, toCsv } from "../src/game/classroom/challenge";
 let fail = 0; const ok = (c: boolean, m: string) => { console.log((c ? "PASS " : "FAIL ") + m); if (!c) fail++; };
 const clear = solarWhPerSol({ irradiance: 586.2, tau: 0.5 }), storm = solarWhPerSol({ irradiance: 586.2, tau: 5 });
@@ -27,3 +29,11 @@ ok(b.reason.includes("needs 2"), "too few instruments is flagged"); ok(!z.ok, "o
 const r = rank([z, b, a]); ok(r[0].name === "A" || (!a.ok && r[0].ok === false), "valid designs rank before invalid ones");
 ok(toCsv(ch, r).startsWith("rank,team"), "CSV export has a header");
 if (fail) { console.log(fail + " failed"); process.exit(1); }
+
+// validation cross-checks
+{ const [moon, mars] = transferChecks();
+  ok(Math.abs(moon.derivedMs - 3082) < 15, "moon transfer delta-v re-derived near 3.08 km/s");
+  ok(Math.abs(mars.derivedMs - 3569) < 20, "mars transfer delta-v re-derived near 3.57 km/s");
+  ok(moon.pct > 0 && moon.pct < 3 && mars.pct > 0 && mars.pct < 3, "game transfer values keep a small positive margin over the re-derived ones");
+  const g = perseveranceMassGap(); ok(g.gapKg > 0 && g.gapKg < 10, "perseverance instrument mass gap is disclosed and small");
+  ok(MARS_SOLAR.irradiance.perihelion > MARS_SOLAR.irradiance.mean && MARS_SOLAR.irradiance.mean > MARS_SOLAR.irradiance.aphelion, "irradiance order: perihelion > mean > aphelion"); }
