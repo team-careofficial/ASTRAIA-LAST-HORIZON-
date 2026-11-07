@@ -6,7 +6,7 @@ import { MISSIONS } from "@/data/world/missions";
 import { CREW3D } from "@/data/world/missions";
 import Avatar from "@/components/ui/Avatar";
 import Welcome from "./Welcome";
-import { intro } from "@/game/engine/intro";
+import { intro, judgeDemo } from "@/game/engine/intro";
 import { useState } from "react";
 
 /** Lobby home, laid out like a mobile shooter lobby: profile top-left, logo and settings top-right, a short button stack on the left,
@@ -50,7 +50,7 @@ export default function Menu() {
         <SideBtn i={0} Icon={Gauge} label="CLOSURE" dot onClick={() => game.go("closure")} />
         <SideBtn i={1} Icon={Sprout} label="GREENHOUSE" dot onClick={() => game.go("greenhouse")} />
         <SideBtn i={2} Icon={Users} label="CLASSROOM" dot onClick={() => game.go("classroom")} />
-        <SideBtn i={3} Icon={Clapperboard} label="QUICK DEMO" onClick={game.startDemo} />
+        <SideBtn i={3} Icon={Clapperboard} label="JUDGE DEMO" onClick={() => { judgeDemo.on = true; game.go("closure"); }} />
       </nav>
       {/* right edge: the squad */}
       <div className="absolute right-2 top-16 flex flex-col gap-2 sm:right-4 sm:top-[4.6rem]">

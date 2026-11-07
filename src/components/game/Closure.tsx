@@ -8,6 +8,8 @@ import { runFly } from "./closureFly";
 import { adviseClosure } from "@/compute/advisor";
 import { activeChallenge, setActiveChallenge, judge, saveEntry } from "@/game/classroom/challenge";
 import { Shell } from "./Pages";
+import JudgeDemo, { type DemoAct } from "./JudgeDemo";
+import { judgeDemo } from "@/game/engine/intro";
 import Btn from "@/components/ui/Btn";
 import { Eyebrow } from "@/components/ui/kit";
 
@@ -22,6 +24,7 @@ export default function Closure() {
   const [lang, setLang] = useState<Lang>("en"), [st, setSt] = useState<St>(() => (ch ? { launcher: ch.launcher, target: ch.target, propellant: ch.propellant, bus: ch.bus, load: 6000, inst: [] } : EDGE)), [predict, setPredict] = useState(true);
   const [score, setScore] = useState({ r: 0, t: 0 }), [banner, setBanner] = useState<{ q?: string; ask?: { id: string; after: string[] }; msg?: string; good?: boolean } | null>(null);
   const [drawer, setDrawer] = useState<string | null | false>(false), [flying, setFlying] = useState(false), [flip, setFlip] = useState(false);
+  const [demoOn, setDemoOn] = useState(() => judgeDemo.on && !activeChallenge()), act = useRef<DemoAct>({} as DemoAct);
   const cv = useRef<HTMLCanvasElement>(null), stop = useRef<() => void>(() => {}), seen = useRef<Record<string, 1>>({});
   const t = (k: string, p?: Record<string, string>) => { let s = STR[lang][k] ?? STR.en[k] ?? k; if (p) for (const n in p) s = s.split(`{${n}}`).join(p[n]); return s; };
   const nf = (n: number, d = 0) => n.toLocaleString(lang === "bn" ? "bn-BD" : "en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -71,6 +74,12 @@ export default function Closure() {
   const verdict = () => (res.closes ? t("fly_ok", { m: nf(dvM, 1) }) : capOver ? t("fly_mass", { m: nf(res.wetKg - res.capacityKg) }) : t("fly_dv", { m: nf(-dvM, 1) }));
   const closeFly = () => { stop.current(); setFlying(false); };
   useEffect(() => () => stop.current(), []);
+  useEffect(() => { judgeDemo.on = false; }, []);
+  act.current = {
+    reset: () => { setSt({ ...EDGE, inst: [] }); setScore({ r: 0, t: 0 }); seen.current = {}; setPredict(true); setBanner(null); setDrawer(false); closeFly(); },
+    add: id => setSt(x => ({ ...x, inst: x.inst.includes(id) ? x.inst : [...x.inst, id] })), ask: id => toggle(id), answer, undo: removeLast, fly, closeFly, receipt: id => setDrawer(id),
+    margin: () => sg(dvM, 1),
+  };
 
   const Badge = (prov: Prov, id: string) => <button type="button" title={t(`k_${prov.kind}_d`)} onClick={e => { e.stopPropagation(); setDrawer(id); }} className={`border px-1.5 text-[9px] tracking-wider ${KC[prov.kind]}`}>{t(`k_${prov.kind}`)}</button>;
   const needle = (f: number) => ({ transform: `rotate(${-90 + Math.max(0, Math.min(1, f)) * 180}deg)`, transformOrigin: "80px 90px", transition: "transform 1.1s cubic-bezier(.3,1.6,.45,.9)" });
@@ -95,6 +104,7 @@ export default function Closure() {
       <div className="mb-4 flex flex-wrap items-center gap-2 font-data text-[10.5px] tracking-widest">
         <span className="border border-dashed border-white/40 px-2 py-0.5 text-white/55">{t("data_badge")}</span>
         {!ch && <button onClick={() => setSt(EDGE)} className="gbtn !px-3 !py-1 !text-[11px] gbtn-main">{t("demo")}</button>}
+        {!ch && <button onClick={() => setDemoOn(true)} className="gbtn !px-3 !py-1 !text-[11px]">▶ {lang === "bn" ? "জাজ ডেমো" : "JUDGE DEMO"}</button>}
         <button onClick={() => { setSt(ch ? { ...st, inst: [] } : { ...EDGE, bus: 3000, inst: [] }); setScore({ r: 0, t: 0 }); seen.current = {}; }} className="gbtn !px-3 !py-1 !text-[11px]">{t("reset")}</button>
         <button onClick={() => setDrawer(null)} className="gbtn !px-3 !py-1 !text-[11px]"><Receipt size={12} className="mr-1 inline" />{t("receipts")}</button>
         <span className="ml-auto flex">{(["en", "bn"] as const).map(l => <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)} className={`border border-white/30 px-2.5 py-1 ${lang === l ? "bg-[#e8a45a] text-black" : "text-white/70"}`}>{l === "en" ? "EN" : "বাংলা"}</button>)}</span>
@@ -165,13 +175,14 @@ export default function Closure() {
       </div>
       {drawer !== false && <aside className="fixed inset-y-0 right-0 z-50 w-[min(440px,100%)] overflow-auto border-l-2 border-[#944921] bg-[#1a0f08] p-5" aria-label="Receipts">
         <div className="flex items-center justify-between"><h2 className="font-display text-base tracking-[0.2em]">{t("drawer_title")}</h2><button onClick={() => setDrawer(false)} className="gbtn !px-3 !py-1 !text-[11px]">{t("close")}</button></div>
-        <div className="my-3 space-y-1 text-[11px] text-white/55">{(["nasa", "derived", "textbook", "unverified", "sim"] as const).map(k => <p key={k}>{t(`k_${k}`)} — {t(`k_${k}_d`)}</p>)}</div>
+        <div className="my-3 space-y-1 text-[11px] text-white/55">{(["nasa", "derived", "agency", "textbook", "unverified", "sim"] as const).map(k => <p key={k}>{t(`k_${k}`)} — {t(`k_${k}_d`)}</p>)}</div>
         {allProv.map(x => <div key={x.id} className={`border-t border-white/15 py-2.5 ${x.id === drawer ? "bg-[#944921]/30" : ""}`}><h4 className="flex justify-between gap-2 text-[14px]"><span>{x.name} · {x.val}</span><span className={`h-fit border px-1.5 text-[9px] ${KC[x.prov.kind]}`}>{t(`k_${x.prov.kind}`)}</span></h4>
           <p className="text-[11.5px] text-white/55">{t("dataset")}: {x.prov.dataset}</p>{x.prov.retrieved && <p className="text-[11.5px] text-white/55">{t("retrieved")}: {x.prov.retrieved}</p>}{x.prov.note && <p className="text-[11.5px] text-white/55">{t("note")}: {x.prov.note}</p>}
           {x.prov.url && <a href={x.prov.url} target="_blank" rel="noopener noreferrer" className="text-[11.5px] text-[#7FD6E8] underline">{t("open_src")}</a>}</div>)}
       </aside>}
       {flying && <div className="fixed inset-0 z-[60] bg-[#0b0604]"><canvas ref={cv} className="block h-full w-full" />
         <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-t from-black/85 to-transparent px-6 py-5"><p className={`font-display text-xl tracking-[0.14em] ${res.closes ? "text-[#53CBB8]" : "text-[#FD4E54]"}`}>{verdict()}</p><Btn main icon={<Undo2 size={15} />} onClick={closeFly}>{t("fly_close")}</Btn></div></div>}
+      {demoOn && <JudgeDemo act={act} lang={lang} onExit={() => setDemoOn(false)} />}
     </Shell>
   );
 }

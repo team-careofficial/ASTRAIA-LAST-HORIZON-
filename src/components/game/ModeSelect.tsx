@@ -1,3 +1,4 @@
+import { judgeDemo } from "@/game/engine/intro";
 import { useEffect, useState } from "react";
 import { X, Lock } from "lucide-react";
 import { sfx } from "@/lib/utils/audio";
@@ -13,6 +14,7 @@ export default function ModeSelect() {
   const CARDS: Card[] = [
     { id: "mars", tab: "mission", title: "MARS", sub: "DESIGN · LAUNCH · LAND", img: "/images/scenes/mars-key.jpg", pos: "80% 30%", desc: "Design a Mars mission with real NASA numbers, then launch and live with the result.", tags: ["DESIGN", "REAL DATA", "LONG SILENCE"], run: () => game.setDestination("mars") },
     { id: "moon", tab: "mission", title: "MOON", sub: "DESIGN · LAUNCH · LAND", img: "/images/scenes/moon.jpg", pos: "50% 62%", desc: "Near and airless. Shorter trip, harsh light, and almost no margin for error.", tags: ["DESIGN", "AIRLESS", "SOUTH POLE"], run: () => game.setDestination("moon") },
+    { id: "judge", tab: "mission", title: "JUDGE DEMO", sub: "GUIDED · ABOUT 90 SECONDS", img: "/images/scenes/control.jpg", pos: "50% 40%", badge: "NEW", desc: "Watch a Mars mission get built, fail, get fixed and launch, with the NASA data named on screen.", tags: ["GUIDED", "NASA DATA", "AUTO"], run: () => { judgeDemo.on = true; game.go("closure"); } },
     { id: "demo", tab: "mission", title: "QUICK DEMO", sub: "2 MINUTES", img: "/images/scenes/control.jpg", desc: "A ready-made Mars mission, so you can see everything fast.", tags: ["FAST", "GUIDED"], run: () => game.startDemo() },
     { id: "missions", tab: "play", title: "MISSIONS", sub: "ON FOOT · DECISIONS", img: "/images/scenes/mars-key.jpg", pos: "12% 80%", desc: "Walk the crew around the base. Diagnose problems, decide, and live with the consequences.", tags: ["CREW", "EMERGENCIES"], off: dest === "moon" ? "Mars only for now" : undefined, run: () => game.go("archive") },
     { id: "rover", tab: "play", title: "ROVER", sub: "DRIVE · SCAN · REPORT", img: "/images/scenes/storm.jpg", desc: "Deploy the rover, watch the environment, scan science targets and report to Earth.", tags: ["DRIVING", "SCIENCE", "POWER"], run: () => { ex.reset(); game.go("rover"); } },
